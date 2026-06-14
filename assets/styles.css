@@ -98,8 +98,10 @@ header{padding:26px 5vw 0;display:flex;justify-content:space-between;align-items
 .price .dim{color:var(--line)}
 
 /* Cartão de categoria ainda sem produtos cadastrados (+ NOVO) */
-/* Entrada por categoria (capas clicáveis) */
-.grid-cats{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+/* Entrada por categoria (capas clicáveis) — sempre nº par de colunas,
+   para nunca sobrar um card sozinho na última linha. */
+.grid-cats{grid-template-columns:repeat(2,1fr)}
+@media (min-width:760px){ .grid-cats{grid-template-columns:repeat(4,1fr)} }
 .cat-tile{background:var(--card);border:1px solid var(--line);border-radius:3px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform .2s, box-shadow .2s}
 .cat-tile:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(60,50,30,.09)}
 .cat-tile-img{aspect-ratio:1/.85;background:#FFFFFF;display:flex;align-items:center;justify-content:center;overflow:hidden}
