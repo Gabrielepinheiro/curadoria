@@ -94,6 +94,15 @@ header{padding:26px 5vw 0;display:flex;justify-content:space-between;align-items
 .price{font-family:'Marcellus',serif;font-size:15px;letter-spacing:.06em;color:var(--ink)}
 .price .dim{color:var(--line)}
 
+/* Cartão "Em breve" (+ NOVO): categoria ainda sem produtos cadastrados */
+.badge-soon{position:absolute;top:12px;left:12px;background:var(--bronze-soft);color:#fff;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:4px 10px;border-radius:2px}
+.card-soon{cursor:default}
+.card-soon:hover{transform:none;box-shadow:none}
+.card-soon .img{opacity:.9}
+.card-soon .store{color:var(--bronze-soft)}
+.card-soon .name{color:var(--bronze)}
+.card-soon .ships{font-style:italic;color:var(--bronze-soft)}
+
 /* ---------- ADMIN ---------- */
 #adminPanel{position:fixed;inset:0;background:rgba(44,40,32,.45);display:none;align-items:flex-start;justify-content:center;z-index:90;padding:5vh 16px;overflow:auto}
 #adminPanel.open{display:flex}

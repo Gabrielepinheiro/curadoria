@@ -191,18 +191,27 @@ function renderGrid() {
   $('countryPick').style.display =
     (state.view === 'curadoria' && (COUNTRIES[state.region] || []).length > 1) ? '' : 'none';
 
-  if (!items.length) {
+  // Capas "Em breve": na curadoria, mostramos a capa de cada categoria que
+  // ainda não tem produto — assim o cliente já vê tudo o que vem por aí,
+  // mesmo antes do catálogo ser alimentado.
+  let soon = [];
+  if (state.view === 'curadoria' && !state.search) {
+    const present = new Set(items.map((p) => p.categoria));
+    const cats = state.category === 'Todos' ? CATEGORIES : [state.category];
+    soon = cats.filter((c) => !present.has(c));
+  }
+
+  if (!items.length && !soon.length) {
     grid.innerHTML = '';
     empty.style.display = 'block';
     $('emptyMsg').textContent =
       state.view === 'favoritos' ? 'Toque no coração de qualquer peça para guardá-la aqui.'
-      : state.view === 'novidades' ? 'Sem novidades no momento — volte em breve.'
-      : 'Ainda não há peças neste filtro — em breve na curadoria.';
+      : 'Sem novidades no momento — volte em breve.';
     return;
   }
   empty.style.display = 'none';
 
-  grid.innerHTML = items.map((p) => {
+  const productsHTML = items.map((p) => {
     const region = regionById(p.region);
     const fav = state.favs.has(p.id);
     // Foto própria do produto, ou a capa oficial aprovada da categoria.
@@ -223,6 +232,18 @@ function renderGrid() {
       </div>
     </article>`;
   }).join('');
+
+  const soonHTML = soon.map((cat) => `<article class="card card-soon">
+      <span class="badge-soon">Em breve</span>
+      <div class="img"><img src="${coverFor(cat)}" alt="${escapeAttr(cat)}"></div>
+      <div class="info">
+        <div class="store">Categoria</div>
+        <div class="name">${cat}</div>
+        <div class="meta"><div class="ships">Novas peças em breve nesta categoria.</div></div>
+      </div>
+    </article>`).join('');
+
+  grid.innerHTML = productsHTML + soonHTML;
 
   grid.querySelectorAll('[data-open]').forEach((el) => {
     el.onclick = () => { const u = el.dataset.open; if (u && u !== '#') window.open(u, '_blank'); };
