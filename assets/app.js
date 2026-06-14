@@ -194,7 +194,7 @@ function renderGrid() {
     $('heroSub').textContent = 'Aqui você encontra as peças que acabaram de entrar na curadoria. Todo mês, novas peças pra você.';
   } else if (isLanding) {
     $('heroTitle').innerHTML = 'Móveis e decoração <em class="ital">com&nbsp;curadoria</em>, loja a loja.';
-    $('heroSub').textContent = 'Explore a curadoria por categoria. Cada peça é avaliada com olhar editorial — qualidade, design, materiais e procedência — para você escolher com confiança.';
+    $('heroSub').textContent = 'Explore a curadoria por categoria — uma seleção editorial de móveis e decoração, escolhida peça por peça.';
   } else if (state.search) {
     $('heroTitle').innerHTML = 'Resultados da <em class="ital">busca.</em>';
     $('heroSub').textContent = 'Peças que combinam com o que você procura.';
