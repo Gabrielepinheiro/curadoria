@@ -53,9 +53,14 @@ const seedAdapter = (() => {
   };
   const write = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
-  // Semeia o catálogo na primeira visita.
-  if (read(LS.stores, null) === null) write(LS.stores, STORES_SEED);
-  if (read(LS.prods,  null) === null) write(LS.prods,  PRODUCTS_SEED);
+  // Semeia o catálogo. SEED_VERSION força recarregar os dados de exemplo
+  // quando atualizamos o seed (senão o navegador manteria a versão antiga).
+  const SEED_VERSION = '3';
+  if (read('cci.seedv', null) !== SEED_VERSION) {
+    write(LS.stores, STORES_SEED);
+    write(LS.prods, PRODUCTS_SEED);
+    write('cci.seedv', SEED_VERSION);
+  }
 
   const storesById = () =>
     Object.fromEntries(read(LS.stores, []).map((s) => [s.id, s]));

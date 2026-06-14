@@ -184,50 +184,65 @@ function priceHTML(level, currency) {
 function renderGrid() {
   const grid = $('grid');
   const empty = $('emptyState');
-  const items = currentItems();
 
-  $('heroTitle').textContent =
-    state.view === 'favoritos' ? 'Seus favoritos, guardados num só lugar.'
-    : state.view === 'novidades' ? 'Novidades da curadoria.'
-    : 'Móveis e decoração com curadoria, loja a loja.';
+  // Entrada da curadoria: mostra só as categorias (capas). Clicar abre os produtos.
+  const isLanding = state.view === 'curadoria' && state.category === 'Todos' && !state.search;
 
-  $('heroSub').textContent =
-    state.view === 'favoritos'
-      ? 'Espaço feito para você não perder os itens que mais gostou.'
-      : state.view === 'novidades'
-      ? 'As peças que acabaram de entrar na curadoria.'
-      : 'Cada peça abaixo foi avaliada: reputação da loja e países de entrega. Clique na peça para abrir direto na loja.';
+  if (state.view === 'favoritos') {
+    $('heroTitle').textContent = 'Seus favoritos, guardados num só lugar.';
+    $('heroSub').textContent = 'Espaço feito para você não perder os itens que mais gostou.';
+  } else if (state.view === 'novidades') {
+    $('heroTitle').textContent = 'Novidades da curadoria.';
+    $('heroSub').textContent = 'Aqui você encontra as peças que acabaram de entrar na curadoria. Todo mês, novas peças pra você.';
+  } else if (isLanding) {
+    $('heroTitle').textContent = 'Móveis e decoração com curadoria, loja a loja.';
+    $('heroSub').textContent = 'Explore a curadoria por categoria.';
+  } else if (state.search) {
+    $('heroTitle').textContent = 'Resultados da busca';
+    $('heroSub').textContent = 'Peças que combinam com o que você procura.';
+  } else {
+    $('heroTitle').textContent = state.category;
+    $('heroSub').textContent = 'Cada peça foi avaliada: reputação da loja e países de entrega. Clique para abrir direto na loja.';
+  }
 
   // toolbar de país só na curadoria
   $('countryPick').style.display =
     (state.view === 'curadoria' && (COUNTRIES[state.region] || []).length > 1) ? '' : 'none';
 
-  // Capas "Em breve": na curadoria, mostramos a capa de cada categoria que
-  // ainda não tem produto — assim o cliente já vê tudo o que vem por aí,
-  // mesmo antes do catálogo ser alimentado.
-  let soon = [];
-  if (state.view === 'curadoria' && !state.search) {
-    const present = new Set(items.map((p) => p.categoria));
-    const cats = state.category === 'Todos' ? CATEGORIES : [state.category];
-    soon = cats.filter((c) => !present.has(c));
+  if (isLanding) {
+    empty.style.display = 'none';
+    grid.className = 'grid grid-cats';
+    grid.innerHTML = CATEGORIES.map((cat) => `<article class="cat-tile" data-cat="${escapeAttr(cat)}">
+        <div class="cat-tile-img"><img src="${coverFor(cat)}" alt="${escapeAttr(cat)}" loading="lazy"></div>
+        <div class="cat-tile-name">${cat}</div>
+      </article>`).join('');
+    grid.querySelectorAll('[data-cat]').forEach((el) => {
+      el.onclick = () => setCat(el.dataset.cat);
+    });
+    return;
   }
 
-  if (!items.length && !soon.length) {
+  grid.className = 'grid';
+  const items = currentItems();
+
+  if (!items.length) {
     grid.innerHTML = '';
     empty.style.display = 'block';
     $('emptyMsg').textContent =
       state.view === 'favoritos' ? 'Toque no coração de qualquer peça para guardá-la aqui.'
-      : 'Sem novidades no momento — volte em breve.';
+      : state.view === 'novidades' ? 'Sem novidades no momento — volte em breve.'
+      : state.search ? 'Nada encontrado para esta busca.'
+      : 'Nenhuma peça nesta categoria ainda.';
     return;
   }
   empty.style.display = 'none';
 
-  const productsHTML = items.map((p) => {
+  grid.innerHTML = items.map((p) => {
     const region = regionById(p.region);
     const fav = state.favs.has(p.id);
     // Foto própria do produto, ou a capa oficial aprovada da categoria.
     const imgSrc = p.imagem || coverFor(p.categoria);
-    const imgInner = `<img src="${imgSrc}" alt="${escapeAttr(p.nome)}">`;
+    const imgInner = `<img src="${imgSrc}" alt="${escapeAttr(p.nome)}" loading="lazy">`;
     return `<article class="card">
       ${isActiveNovelty(p) ? '<span class="badge-new">Novo</span>' : ''}
       <button class="fav ${fav ? 'on' : ''}" data-fav="${p.id}" aria-label="Favoritar">♥</button>
@@ -243,16 +258,6 @@ function renderGrid() {
       </div>
     </article>`;
   }).join('');
-
-  const soonHTML = soon.map((cat) => `<article class="card card-soon">
-      <div class="img"><img src="${coverFor(cat)}" alt="${escapeAttr(cat)}"></div>
-      <div class="info">
-        <div class="store">Em breve</div>
-        <div class="name">${cat}</div>
-      </div>
-    </article>`).join('');
-
-  grid.innerHTML = productsHTML + soonHTML;
 
   grid.querySelectorAll('[data-open]').forEach((el) => {
     el.onclick = () => { const u = el.dataset.open; if (u && u !== '#') window.open(u, '_blank'); };
