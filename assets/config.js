@@ -41,13 +41,16 @@ export const PRICE_BANDS = {
   ],
 };
 
-// Lista completa de categorias (briefing §6).
+// Lista de categorias (24). Móveis em ordem alfabética, depois
+// iluminação/têxteis/decoração em ordem alfabética (briefing §6 + ajustes).
 export const CATEGORIES = [
-  'Sofá', 'Poltrona', 'Cadeira', 'Banco & Banqueta', 'Mesa de jantar',
-  'Mesa de centro', 'Mesa lateral', 'Mesa de cabeceira', 'Aparador & Buffet',
-  'Estante', 'Cama', 'Cômoda', 'Escrivaninha', 'Puff', 'Luminária',
-  'Tapete', 'Cortina', 'Quadros & Arte', 'Espelho',
-  'Roupa de cama & Têxtil', 'Área externa', 'Decoração',
+  // Móveis
+  'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
+  'Cama', 'Cômoda', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
+  'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Poltrona', 'Puff', 'Sofá',
+  // Iluminação, têxteis e decoração
+  'Área externa', 'Cortina', 'Decoração', 'Espelho', 'Iluminação',
+  'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
 ];
 
 // Ícones de categoria — traço bronze sobre fundo linho (do protótipo).
@@ -62,7 +65,7 @@ export const CATEGORY_ICONS = {
   'Decoração':      '<svg viewBox="0 0 100 100"><path d="M40 20 Q36 40 30 50 Q24 62 32 74 Q40 84 50 84 Q60 84 68 74 Q76 62 70 50 Q64 40 60 20 Z M40 20 H60"/></svg>',
   'Cortina':        '<svg viewBox="0 0 100 100"><path d="M15 18 H85 M22 18 Q26 50 20 82 M38 18 Q42 50 36 82 M54 18 Q58 50 52 82 M70 18 Q74 50 70 82"/></svg>',
   'Tapete':         '<svg viewBox="0 0 100 100"><rect x="18" y="26" width="64" height="48" rx="3"/><rect x="28" y="36" width="44" height="28" rx="2"/><path d="M18 30 H12 M18 44 H12 M18 58 H12 M18 70 H12 M82 30 H88 M82 44 H88 M82 58 H88 M82 70 H88"/></svg>',
-  'Luminária':      '<svg viewBox="0 0 100 100"><path d="M35 20 H65 L74 44 H26 Z M50 44 V78 M38 80 H62"/></svg>',
+  'Iluminação':     '<svg viewBox="0 0 100 100"><path d="M35 20 H65 L74 44 H26 Z M50 44 V78 M38 80 H62"/></svg>',
   'Espelho':        '<svg viewBox="0 0 100 100"><rect x="30" y="14" width="40" height="64" rx="20"/><path d="M40 30 Q38 44 46 54"/></svg>',
   'Estante':        '<svg viewBox="0 0 100 100"><rect x="22" y="16" width="56" height="68"/><path d="M22 38 H78 M22 60 H78"/></svg>',
   'Cama':           '<svg viewBox="0 0 100 100"><path d="M14 50 H86 V74 M14 40 V74 M86 50 V74 M14 50 Q14 40 26 40 H58 Q70 40 70 50"/></svg>',
@@ -76,28 +79,30 @@ export function iconFor(category) {
 // Capas oficiais aprovadas (PNG 1000×850, ícone bronze sobre linho).
 // Usadas como imagem do card quando o produto não tem foto própria.
 const COVERS = {
-  'Sofá': 'capa-sofa.png',
-  'Poltrona': 'capa-poltrona.png',
-  'Cadeira': 'capa-cadeira.png',
-  'Banco & Banqueta': 'capa-banco-banqueta.png',
-  'Mesa de jantar': 'capa-mesa-de-jantar.png',
-  'Mesa de centro': 'capa-mesa-de-centro.png',
-  'Mesa lateral': 'capa-mesa-lateral.png',
-  'Mesa de cabeceira': 'capa-mesa-de-cabeceira.png',
   'Aparador & Buffet': 'capa-aparador-buffet.png',
-  'Estante': 'capa-estante.png',
+  'Banco & Banqueta': 'capa-banco-banqueta.png',
+  'Cadeira': 'capa-cadeira.png',
+  'Cadeira de escritório': 'capa-cadeira-de-escritorio.png',
   'Cama': 'capa-cama.png',
   'Cômoda': 'capa-comoda.png',
   'Escrivaninha': 'capa-escrivaninha.png',
+  'Estante': 'capa-estante.png',
+  'Mesa de cabeceira': 'capa-mesa-de-cabeceira.png',
+  'Mesa de centro': 'capa-mesa-de-centro.png',
+  'Mesa de jantar': 'capa-mesa-de-jantar.png',
+  'Mesa lateral': 'capa-mesa-lateral.png',
+  'Poltrona': 'capa-poltrona.png',
   'Puff': 'capa-puff.png',
-  'Luminária': 'capa-luminaria.png',
-  'Tapete': 'capa-tapete.png',
-  'Cortina': 'capa-cortina.png',
-  'Quadros & Arte': 'capa-quadros-arte.png',
-  'Espelho': 'capa-espelho.png',
-  'Roupa de cama & Têxtil': 'capa-roupa-de-cama-textil.png',
+  'Sofá': 'capa-sofa.png',
   'Área externa': 'capa-area-externa.png',
+  'Cortina': 'capa-cortina.png',
   'Decoração': 'capa-decoracao.png',
+  'Espelho': 'capa-espelho.png',
+  'Iluminação': 'capa-luminaria.png',
+  'Papel de parede': 'capa-papel-de-parede.png',
+  'Quadros & Arte': 'capa-quadros-arte.png',
+  'Roupa de cama & Têxtil': 'capa-roupa-de-cama-textil.png',
+  'Tapete': 'capa-tapete.png',
 };
 
 export function coverFor(category) {

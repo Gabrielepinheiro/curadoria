@@ -55,7 +55,7 @@ const seedAdapter = (() => {
 
   // Semeia o catálogo. SEED_VERSION força recarregar os dados de exemplo
   // quando atualizamos o seed (senão o navegador manteria a versão antiga).
-  const SEED_VERSION = '3';
+  const SEED_VERSION = '4';
   if (read('cci.seedv', null) !== SEED_VERSION) {
     write(LS.stores, STORES_SEED);
     write(LS.prods, PRODUCTS_SEED);
