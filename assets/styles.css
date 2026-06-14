@@ -1,0 +1,141 @@
+/* =============================================================
+   styles.css — identidade visual "Casa com Identidade" (CCI).
+   Base fiel ao protótipo aprovado. Adições marcadas com /*+ NOVO */
+   ============================================================= */
+:root{
+  --linen:#F6F3EC;
+  --card:#FFFFFF;
+  --ink:#2C2820;
+  --bronze:#7A6A52;
+  --bronze-soft:#A3937B;
+  --sage:#8C9181;
+  --line:#E3DDD0;
+  --gold:#B49B6C;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--linen);color:var(--ink);min-height:100vh}
+h1,h2,h3,.display{font-family:'Marcellus',serif;font-weight:400}
+button{font-family:inherit;cursor:pointer}
+
+/* ---------- LOGIN ---------- */
+#loginScreen{position:fixed;inset:0;background:var(--linen);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px}
+.login-card{max-width:420px;width:100%;text-align:center}
+.login-card .mark{font-family:'Marcellus',serif;font-size:13px;letter-spacing:.35em;text-transform:uppercase;color:var(--bronze)}
+.login-card h1{font-size:34px;margin:14px 0 6px}
+.login-card p{font-size:14px;color:var(--bronze);margin-bottom:34px;line-height:1.6}
+.login-card input{width:100%;padding:15px 18px;border:1px solid var(--line);background:var(--card);font-size:15px;font-family:inherit;outline:none;text-align:center;letter-spacing:.08em;border-radius:2px}
+.login-card input:focus{border-color:var(--bronze)}
+.login-card .btn-main{width:100%;margin-top:12px}
+.login-hint{margin-top:22px;font-size:12px;color:var(--bronze-soft)}
+.login-hint code{background:var(--card);border:1px solid var(--line);padding:2px 8px;border-radius:2px;font-size:12px}
+.login-error{color:#A05A4A;font-size:13px;margin-top:10px;min-height:18px}
+
+.btn-main{background:var(--ink);color:var(--linen);border:none;padding:15px 26px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;border-radius:2px;transition:background .2s}
+.btn-main:hover{background:var(--bronze)}
+
+/* ---------- HEADER ---------- */
+header{padding:26px 5vw 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.brand{font-family:'Marcellus',serif;font-size:15px;letter-spacing:.3em;text-transform:uppercase}
+.brand span{color:var(--bronze)}
+.header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chip-btn{background:transparent;border:1px solid var(--line);padding:9px 18px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;border-radius:2px;color:var(--ink);transition:all .2s;display:flex;gap:8px;align-items:center}
+.chip-btn:hover,.chip-btn.active{background:var(--ink);color:var(--linen);border-color:var(--ink)}
+.chip-btn .count{background:var(--gold);color:#fff;border-radius:999px;font-size:10px;min-width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
+
+.hero{padding:38px 5vw 8px}
+.hero h2{font-size:clamp(26px,4vw,40px);max-width:640px;line-height:1.15}
+.hero .greet{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--bronze);margin-bottom:10px} /*+ NOVO: saudação */
+.hero .greet button{background:none;border:none;color:var(--gold);font-size:12px;text-decoration:underline;letter-spacing:.05em;text-transform:none}
+.hero p{margin-top:10px;font-size:14px;color:var(--bronze);max-width:520px;line-height:1.65}
+
+/* ---------- BUSCA (+ NOVO) ---------- */
+.toolbar{display:flex;gap:12px;align-items:center;padding:18px 5vw 0;flex-wrap:wrap}
+.search{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:2px;padding:0 14px}
+.search:focus-within{border-color:var(--bronze)}
+.search input{flex:1;border:none;outline:none;background:none;font-family:inherit;font-size:14px;padding:13px 0;color:var(--ink)}
+.search svg{width:16px;height:16px;stroke:var(--bronze);fill:none;stroke-width:2}
+.country-pick{display:flex;align-items:center;gap:8px}
+.country-pick select{border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:13px;padding:12px 14px;border-radius:2px;color:var(--ink);outline:none}
+.country-pick select:focus{border-color:var(--bronze)}
+
+/* ---------- ATLAS (regiões) ---------- */
+.atlas{display:flex;gap:0;overflow-x:auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:22px 0 0;padding:0 5vw;scrollbar-width:none}
+.atlas::-webkit-scrollbar{display:none}
+.atlas button{background:none;border:none;border-bottom:2px solid transparent;padding:16px 20px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--bronze);white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .2s}
+.atlas button .cur{font-size:10px;color:var(--bronze-soft);letter-spacing:.2em}
+.atlas button.active{color:var(--ink);border-bottom-color:var(--ink)}
+.atlas button:hover{color:var(--ink)}
+
+/* ---------- CATEGORIAS ---------- */
+.cats{display:flex;gap:8px;flex-wrap:wrap;padding:20px 5vw 4px}
+.cats button{background:var(--card);border:1px solid var(--line);padding:8px 16px;font-size:12.5px;border-radius:999px;color:var(--ink);transition:all .2s}
+.cats button.active{background:var(--bronze);border-color:var(--bronze);color:#fff}
+
+/* ---------- GRID ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:22px;padding:26px 5vw 70px}
+.empty{padding:70px 5vw;text-align:center;color:var(--bronze);font-size:14.5px;line-height:1.7}
+.empty .display{font-size:24px;color:var(--ink);margin-bottom:8px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:3px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s, box-shadow .2s;position:relative}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(60,50,30,.09)}
+.card .img{aspect-ratio:1/.85;background:linear-gradient(170deg,#FBF9F4,#EFEAE0);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
+.card .img svg{width:62%;height:62%;stroke:var(--bronze);fill:none;stroke-width:2.4;opacity:.85}
+.card .img img{width:100%;height:100%;object-fit:cover} /*+ NOVO: foto real do produto */
+.badge-new{position:absolute;top:12px;left:12px;background:var(--gold);color:#fff;font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:4px 10px;border-radius:2px} /*+ NOVO: selo Novo */
+.fav{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.9);border:1px solid var(--line);width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bronze);transition:all .2s}
+.fav.on{background:var(--ink);border-color:var(--ink);color:var(--gold)}
+.card .info{padding:16px 18px 18px;display:flex;flex-direction:column;gap:4px;flex:1}
+.card .store{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze-soft)}
+.card .name{font-family:'Marcellus',serif;font-size:17.5px;line-height:1.25;cursor:pointer}
+.card .name:hover{color:var(--bronze)}
+.card .ref{font-size:11.5px;color:var(--bronze-soft);font-style:italic} /*+ NOVO: referência original da loja */
+.card .meta{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px}
+.ships{font-size:11.5px;color:var(--bronze);line-height:1.4}
+.price{font-family:'Marcellus',serif;font-size:15px;letter-spacing:.06em;color:var(--ink)}
+.price .dim{color:var(--line)}
+
+/* ---------- ADMIN ---------- */
+#adminPanel{position:fixed;inset:0;background:rgba(44,40,32,.45);display:none;align-items:flex-start;justify-content:center;z-index:90;padding:5vh 16px;overflow:auto}
+#adminPanel.open{display:flex}
+.admin-card{background:var(--linen);max-width:560px;width:100%;border-radius:4px;padding:34px 34px 30px}
+.admin-card h3{font-size:24px;margin-bottom:4px}
+.admin-card .sub{font-size:13px;color:var(--bronze);margin-bottom:24px;line-height:1.6}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--bronze);margin-bottom:6px}
+.field input,.field select{width:100%;padding:12px 14px;border:1px solid var(--line);background:var(--card);font-size:14px;font-family:inherit;outline:none;border-radius:2px}
+.field input:focus,.field select:focus{border-color:var(--bronze)}
+
+/* área de colar imagem (+ NOVO — briefing §5.7: colar Ctrl+V) */
+.paste-zone{border:1.5px dashed var(--bronze-soft);border-radius:3px;background:var(--card);padding:18px;text-align:center;color:var(--bronze);font-size:13px;cursor:pointer;transition:all .2s;position:relative;min-height:120px;display:flex;align-items:center;justify-content:center}
+.paste-zone:hover,.paste-zone.drag{border-color:var(--bronze);background:#FBF9F4}
+.paste-zone.has-img{padding:0;border-style:solid}
+.paste-zone img{max-height:200px;width:100%;object-fit:contain;border-radius:2px}
+.paste-zone .hint b{color:var(--ink)}
+
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.euro-pick{display:flex;gap:6px}
+.euro-pick button{flex:1;background:var(--card);border:1px solid var(--line);padding:10px 0;font-family:'Marcellus',serif;font-size:14px;border-radius:2px;color:var(--bronze-soft)}
+.euro-pick button.sel{background:var(--ink);border-color:var(--ink);color:var(--gold)}
+.euro-pick button .lvl-label{display:block;font-family:'Outfit';font-size:9px;letter-spacing:.04em;color:var(--bronze-soft);margin-top:2px}
+.euro-pick button.sel .lvl-label{color:var(--bronze-soft)}
+.check-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink);margin-top:4px}
+.check-row input[type=checkbox]{width:auto}
+.admin-actions{display:flex;gap:10px;margin-top:22px}
+.btn-ghost{background:transparent;border:1px solid var(--line);padding:14px 22px;font-size:12px;letter-spacing:.15em;text-transform:uppercase;border-radius:2px;color:var(--ink)}
+.admin-note{font-size:11.5px;color:var(--sage);margin-top:8px;min-height:16px}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--linen);padding:13px 26px;font-size:13px;letter-spacing:.05em;border-radius:3px;transition:transform .35s;z-index:200}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ---------- AVISO LEGAL (+ NOVO — briefing §5.2) ---------- */
+#legalModal{position:fixed;inset:0;background:rgba(44,40,32,.55);display:none;align-items:center;justify-content:center;z-index:110;padding:5vh 16px}
+#legalModal.open{display:flex}
+.legal-card{background:var(--linen);max-width:600px;width:100%;border-radius:4px;padding:34px;max-height:88vh;display:flex;flex-direction:column}
+.legal-card h3{font-size:24px;margin-bottom:14px}
+.legal-body{overflow:auto;font-size:13.5px;line-height:1.7;color:var(--ink);padding-right:8px;flex:1}
+.legal-body p{margin-bottom:12px}
+
+@media (max-width:640px){
+  .row-2{grid-template-columns:1fr}
+  .admin-card{padding:26px 20px}
+}
