@@ -23,27 +23,25 @@ const state = {
 const $ = (id) => document.getElementById(id);
 const today = () => new Date().toISOString().slice(0, 10);
 
-// ---------- AVISO LEGAL (texto provisório; substituir pelo texto final da cliente §8) ----------
+// ---------- AVISO LEGAL (texto final fornecido por Gabriele) ----------
 const LEGAL_TEXT = `
-<p><strong>Curadoria indicativa.</strong> A Casa com Identidade reúne uma seleção de produtos de lojas de terceiros. Não vendemos os produtos exibidos nem intermediamos a compra — ao clicar numa peça, você é direcionado ao site da loja, onde a compra é feita por sua conta e risco.</p>
-<p><strong>Produtos não inspecionados pessoalmente.</strong> As peças são selecionadas por critérios de estilo, reputação da loja e faixa de preço, mas não são necessariamente inspecionadas fisicamente pela arquiteta.</p>
-<p><strong>Possível divergência entre imagem e produto.</strong> Cores, medidas, materiais e disponibilidade podem variar em relação ao exibido. Confirme sempre as informações na loja antes de comprar.</p>
-<p><strong>Idioma e referência.</strong> O nome original da loja (em outro idioma) é mantido para facilitar a localização do produto no site de origem.</p>
-<p><strong>A curadoria não substitui um projeto de interiores.</strong> As sugestões têm caráter inspiracional e não constituem projeto de arquitetura ou decoração personalizado.</p>
-<p><strong>Responsabilidade da loja.</strong> Pagamento, entrega, trocas, garantias e atendimento são de inteira responsabilidade da loja de origem.</p>
-<p><strong>Propriedade do conteúdo.</strong> A curadoria, a organização e os textos desta plataforma são de propriedade da Casa com Identidade.</p>
+<p><strong>Curadoria indicativa.</strong> A Casa com Identidade reúne uma seleção de produtos de lojas de terceiros. Não vendemos os produtos exibidos nem intermediamos a compra. Ao clicar numa peça, você é direcionado ao site da loja de origem, onde a compra acontece diretamente com o vendedor.</p>
+<p><strong>Seleção por critério editorial.</strong> As peças são escolhidas com base em critérios de estilo, coerência estética, reputação da loja e faixa de preço. Nem todas são inspecionadas fisicamente pela arquiteta.</p>
+<p><strong>Informações do produto.</strong> Cores, medidas, materiais e disponibilidade podem variar em relação ao exibido. Recomendamos confirmar os detalhes diretamente na loja antes de finalizar qualquer compra.</p>
+<p><strong>Nome das lojas.</strong> O nome original da loja é mantido no idioma de origem para facilitar a localização do produto no site.</p>
+<p><strong>Caráter da curadoria.</strong> As sugestões têm caráter inspiracional e editorial. A curadoria não substitui um projeto de arquitetura ou decoração personalizado.</p>
+<p><strong>Compra, entrega e atendimento.</strong> Pagamento, entrega, trocas, garantias e suporte ao cliente são de responsabilidade exclusiva da loja de origem.</p>
+<p><strong>Propriedade intelectual.</strong> A curadoria, a organização do conteúdo e os textos desta plataforma são de propriedade de Gabriele Pinheiro. É proibida a reprodução sem autorização.</p>
 
-<h4 style="font-family:'Marcellus',serif;font-size:19px;margin:22px 0 6px">Proteção de dados — DSGVO (Alemanha) e RGPD/GDPR (União Europeia)</h4>
-<p>Esta plataforma respeita o Regulamento Geral sobre a Proteção de Dados da União Europeia (RGPD/GDPR, Regulamento (UE) 2016/679) e a lei de proteção de dados da Alemanha (Bundesdatenschutzgesetz — DSGVO). Para usuários no Brasil, aplica-se também a LGPD (Lei 13.709/2018).</p>
-<p><strong>Responsável pelo tratamento (Verantwortliche/Controller).</strong> Casa com Identidade — [nome/razão social], [endereço completo na Alemanha/UE], e-mail: [e-mail de contato]. Encarregado de proteção de dados (Datenschutzbeauftragte/DPO), se aplicável: [contato].</p>
-<p><strong>Dados que tratamos.</strong> Dados de cadastro e acesso (nome, e-mail/credencial), registro do aceite deste aviso (data e hora) e suas preferências dentro da plataforma (peças favoritadas). Não vendemos produtos nem processamos pagamentos — estes ocorrem nas lojas de terceiros, sob as políticas delas.</p>
-<p><strong>Base legal (Art. 6 GDPR).</strong> Execução do contrato de acesso à curadoria (Art. 6(1)(b)); consentimento, quando aplicável (Art. 6(1)(a)); e legítimo interesse na operação e segurança da plataforma (Art. 6(1)(f)).</p>
-<p><strong>Cookies e armazenamento local.</strong> Utilizamos apenas armazenamento estritamente necessário ao funcionamento (manter o login, registrar o aceite deste aviso e guardar seus favoritos). Cookies não essenciais (ex.: analíticos) só serão usados mediante o seu consentimento prévio, por meio do banner de consentimento.</p>
-<p><strong>Compartilhamento e transferências.</strong> Os dados são tratados em provedores de infraestrutura na União Europeia. Eventuais transferências internacionais observam as salvaguardas do GDPR (cláusulas contratuais padrão). Ao clicar numa peça, você é direcionado ao site da loja, que passa a tratar seus dados conforme a política própria.</p>
-<p><strong>Prazo de retenção.</strong> Mantemos os dados apenas pelo tempo necessário às finalidades acima ou enquanto durar o seu acesso; depois disso, são eliminados ou anonimizados.</p>
-<p><strong>Seus direitos (Art. 15–22 GDPR / LGPD).</strong> Você pode solicitar acesso, correção, eliminação, portabilidade, limitação ou oposição ao tratamento, além de retirar o consentimento a qualquer momento, escrevendo para [e-mail de contato]. Você também tem o direito de apresentar reclamação a uma autoridade de controle (na Alemanha, a autoridade estadual de proteção de dados competente).</p>
-
-<p style="color:var(--bronze-soft);font-style:italic">[Minuta para revisão jurídica. Os campos entre colchetes devem ser preenchidos por Gabriele, e o texto final (Termos de Uso + Política de Privacidade/Datenschutzerklärung) deve ser validado por advogado(a). O banner de consentimento de cookies será ativado na configuração do Wix.]</p>
+<h4 style="font-family:'Marcellus',serif;font-size:19px;margin:24px 0 8px">Proteção de dados — GDPR (União Europeia) e LGPD (Brasil)</h4>
+<p>Esta plataforma está em conformidade com o Regulamento Geral sobre a Proteção de Dados da União Europeia (GDPR, Regulamento (UE) 2016/679), a lei alemã de proteção de dados (DSGVO) e, para usuárias no Brasil, a LGPD (Lei 13.709/2018).</p>
+<p><strong>Responsável pelo tratamento.</strong> Gabriele Pinheiro — contato@gabrielepinheiro.com</p>
+<p><strong>Dados que tratamos.</strong> Dados de cadastro e acesso (nome e e-mail), registro do aceite deste aviso (data e hora) e preferências dentro da plataforma. Não processamos pagamentos — estes ocorrem diretamente nas lojas de origem, sob as políticas delas.</p>
+<p><strong>Base legal.</strong> Execução do contrato de acesso à curadoria (Art. 6(1)(b) GDPR); consentimento, quando aplicável (Art. 6(1)(a)); e legítimo interesse na operação e segurança da plataforma (Art. 6(1)(f)).</p>
+<p><strong>Cookies.</strong> Utilizamos apenas armazenamento estritamente necessário ao funcionamento da plataforma: manter o acesso ativo e registrar o aceite deste aviso. Cookies não essenciais só serão utilizados mediante consentimento prévio, por meio do banner de consentimento.</p>
+<p><strong>Compartilhamento de dados.</strong> Os dados são tratados em servidores na União Europeia. Eventuais transferências internacionais seguem as salvaguardas do GDPR. Ao acessar uma loja externa, seus dados passam a ser tratados conforme a política de privacidade da própria loja.</p>
+<p><strong>Prazo de retenção.</strong> Os dados são mantidos pelo tempo necessário às finalidades descritas ou enquanto durar o seu acesso. Após esse período, são eliminados ou anonimizados.</p>
+<p><strong>Seus direitos.</strong> Você pode solicitar acesso, correção, eliminação, portabilidade, limitação ou oposição ao tratamento dos seus dados escrevendo para contato@gabrielepinheiro.com. Também é possível retirar o consentimento a qualquer momento e apresentar reclamação à autoridade de proteção de dados competente (na Alemanha, a autoridade estadual — Landesdatenschutzbehörde).</p>
 `;
 
 // =============================================================
@@ -189,16 +187,16 @@ function renderGrid() {
   const isLanding = state.view === 'curadoria' && state.category === 'Todos' && !state.search;
 
   if (state.view === 'favoritos') {
-    $('heroTitle').textContent = 'Seus favoritos, guardados num só lugar.';
+    $('heroTitle').innerHTML = 'Seus favoritos, <em class="ital">num só lugar.</em>';
     $('heroSub').textContent = 'Espaço feito para você não perder os itens que mais gostou.';
   } else if (state.view === 'novidades') {
-    $('heroTitle').textContent = 'Novidades da curadoria.';
+    $('heroTitle').innerHTML = '<em class="ital">Novidades</em> da curadoria.';
     $('heroSub').textContent = 'Aqui você encontra as peças que acabaram de entrar na curadoria. Todo mês, novas peças pra você.';
   } else if (isLanding) {
-    $('heroTitle').textContent = 'Móveis e decoração com curadoria, loja a loja.';
-    $('heroSub').textContent = 'Explore a curadoria por categoria.';
+    $('heroTitle').innerHTML = 'Móveis e decoração <em class="ital">com&nbsp;curadoria</em>, loja a loja.';
+    $('heroSub').textContent = 'Explore a curadoria por categoria. Cada peça é avaliada com olhar editorial — qualidade, design, materiais e procedência — para você escolher com confiança.';
   } else if (state.search) {
-    $('heroTitle').textContent = 'Resultados da busca';
+    $('heroTitle').innerHTML = 'Resultados da <em class="ital">busca.</em>';
     $('heroSub').textContent = 'Peças que combinam com o que você procura.';
   } else {
     $('heroTitle').textContent = state.category;

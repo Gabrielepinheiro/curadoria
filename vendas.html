@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casa com Identidade · Acesso à Curadoria</title>
+<meta name="description" content="Mobiliário e decoração com curadoria de arquiteta, para brasileiros na Europa e no Brasil. Acesso à curadoria Casa com Identidade.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen:#F6F3EC; --card:#FFFFFF; --ink:#2C2820;
+    --bronze:#7A6A52; --bronze-soft:#A3937B; --sage:#8C9181;
+    --line:#E3DDD0; --gold:#B49B6C; --cream:#FBF9F4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Outfit',sans-serif;background:#FFFFFF;color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  .ital{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500}
+  .eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--bronze-soft)}
+
+  /* ---------- NAV ---------- */
+  .nav-outer{position:sticky;top:0;z-index:50;padding:16px 24px;backdrop-filter:saturate(150%) blur(8px);background:rgba(255,255,255,.78)}
+  .nav{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .logo{display:flex;flex-direction:column;line-height:1.1}
+  .logo b{font-family:'Marcellus',serif;font-size:16px;letter-spacing:.26em;text-transform:uppercase;font-weight:400}
+  .logo b span{color:var(--bronze)}
+  .logo i{font-style:normal;font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze-soft);margin-top:3px}
+  .nav-links{display:flex;gap:30px;font-size:13.5px;color:var(--bronze)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-size:13px;letter-spacing:.04em;border-radius:999px;padding:12px 22px;cursor:pointer;transition:all .2s;border:1px solid transparent;white-space:nowrap}
+  .btn-dark{background:var(--ink);color:#fff}
+  .btn-dark:hover{background:var(--bronze)}
+  .btn-outline{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn-outline:hover{border-color:var(--ink)}
+  .btn-lg{padding:16px 30px;font-size:14px}
+
+  /* ---------- HERO ---------- */
+  .hero{text-align:center;padding:70px 0 40px}
+  .pill{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze)}
+  .pill .dot{width:7px;height:7px;border-radius:999px;background:var(--sage)}
+  .hero h1{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(38px,6.5vw,76px);line-height:1.02;letter-spacing:-.015em;margin:26px auto 0;max-width:13ch}
+  .hero h1 .ital{font-size:1.05em;color:var(--bronze)}
+  .hero h1 .muted{color:var(--bronze-soft)}
+  .hero .lead{font-size:clamp(15px,1.8vw,18px);color:var(--bronze);max-width:620px;margin:24px auto 0;line-height:1.65}
+  .hero .actions{display:flex;gap:16px;align-items:center;justify-content:center;margin-top:36px;flex-wrap:wrap}
+  .link-arrow{color:var(--bronze);font-size:14.5px;border-bottom:1px solid transparent;transition:border-color .2s}
+  .link-arrow:hover{border-bottom-color:var(--bronze)}
+
+  /* preview collage */
+  .preview{margin:56px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:920px}
+  .preview figure{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--card)}
+  .preview img{width:100%;aspect-ratio:1/.85;object-fit:cover;display:block}
+  .preview figcaption{font-family:'Marcellus',serif;font-size:13.5px;text-align:center;padding:10px 4px 14px}
+  @media(max-width:720px){ .preview{grid-template-columns:repeat(2,1fr)} }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{padding:84px 0}
+  .sec-head{text-align:center;max-width:760px;margin:0 auto 54px}
+  .sec-head .eyebrow{display:block;margin-bottom:18px}
+  .sec-head h2{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(28px,4.4vw,48px);line-height:1.1;letter-spacing:-.01em}
+  .sec-head h2 .ital{color:var(--bronze);font-size:1.06em}
+  .sec-head p{color:var(--bronze);margin-top:16px;font-size:15.5px;line-height:1.7}
+
+  /* ---------- 01 BENEFÍCIOS ---------- */
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .col{background:#fff;padding:38px 32px}
+  .col .eyebrow{display:block;margin-bottom:18px}
+  .col h3{font-family:'Marcellus',serif;font-weight:400;font-size:23px;line-height:1.2;margin-bottom:12px}
+  .col p{color:var(--bronze);font-size:14.5px;line-height:1.7}
+  @media(max-width:760px){ .cols{grid-template-columns:1fr} }
+
+  /* ---------- 02 COMO FUNCIONA ---------- */
+  .steps{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:2px}
+  .step{display:grid;grid-template-columns:64px 1fr;gap:22px;align-items:start;padding:26px 4px;border-top:1px solid var(--line)}
+  .step:last-child{border-bottom:1px solid var(--line)}
+  .step .num{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:34px;color:var(--gold);line-height:1}
+  .step h3{font-family:'Marcellus',serif;font-weight:400;font-size:20px;margin-bottom:6px}
+  .step p{color:var(--bronze);font-size:14.5px;line-height:1.65}
+
+  /* ---------- 03 GALERIA ---------- */
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .gallery figure{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff;transition:transform .2s,box-shadow .2s}
+  .gallery figure:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(60,50,30,.08)}
+  .gallery img{width:100%;aspect-ratio:1/.85;object-fit:cover;display:block}
+  .gallery figcaption{font-family:'Marcellus',serif;font-size:13px;text-align:center;padding:9px 4px 13px;color:var(--ink)}
+  @media(max-width:860px){ .gallery{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:560px){ .gallery{grid-template-columns:repeat(2,1fr)} }
+
+  /* ---------- PREÇO ---------- */
+  .price-sec{background:var(--cream)}
+  .price-card{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:44px 40px;text-align:center}
+  .price-card .eyebrow{display:block;margin-bottom:16px}
+  .price-card .value{font-family:'Marcellus',serif;font-size:clamp(40px,7vw,64px);line-height:1;margin:6px 0}
+  .price-card .value small{font-size:18px;color:var(--bronze);font-family:'Outfit';font-weight:400}
+  .price-card .note{color:var(--bronze-soft);font-size:12.5px;margin-top:6px}
+  .incl{list-style:none;text-align:left;max-width:360px;margin:28px auto 30px;display:flex;flex-direction:column;gap:12px}
+  .incl li{display:flex;gap:12px;font-size:14.5px;color:var(--ink)}
+  .incl li::before{content:"";flex:0 0 18px;height:18px;border-radius:999px;border:1px solid var(--gold);background:radial-gradient(circle at 50% 50%, var(--gold) 0 4px, transparent 5px);margin-top:1px}
+  .guarantee{max-width:560px;margin:22px auto 0;display:flex;align-items:center;gap:18px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px 24px}
+  .guarantee .seal{flex:0 0 56px;height:56px;border-radius:999px;background:var(--sage);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Marcellus',serif;line-height:1}
+  .guarantee .seal-n{font-size:20px} .guarantee .seal-u{font-size:10px;letter-spacing:.1em}
+  .guarantee p{font-size:13.5px;color:var(--bronze);line-height:1.55}
+  .guarantee b{color:var(--ink)}
+
+  /* ---------- FAQ ---------- */
+  .faq{max-width:760px;margin:0 auto}
+  details{border-top:1px solid var(--line);padding:20px 4px}
+  details:last-child{border-bottom:1px solid var(--line)}
+  summary{font-family:'Marcellus',serif;font-size:18px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--bronze);font-size:22px;line-height:1}
+  details[open] summary::after{content:"–"}
+  details p{color:var(--bronze);font-size:14.5px;line-height:1.7;margin-top:14px}
+
+  /* ---------- FINAL CTA + FOOTER ---------- */
+  .final{text-align:center;background:var(--ink);color:var(--linen);border-radius:18px;padding:64px 28px;margin:0 24px}
+  .final h2{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(30px,4.6vw,48px);line-height:1.1}
+  .final h2 .ital{color:var(--gold);font-size:1.06em}
+  .final p{color:#C9BFAE;margin:18px auto 30px;max-width:520px;font-size:15px;line-height:1.65}
+  .final .btn-dark{background:var(--gold);color:var(--ink)}
+  .final .btn-dark:hover{background:#fff}
+  footer{padding:54px 0 40px;text-align:center}
+  footer .logo{align-items:center}
+  footer .f-links{display:flex;gap:24px;justify-content:center;margin:22px 0 18px;font-size:13px;color:var(--bronze)}
+  footer .f-links a:hover{color:var(--ink)}
+  footer small{color:var(--bronze-soft);font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav-outer">
+  <nav class="nav">
+    <a class="logo" href="#topo">
+      <b>CCI <span>· Curadoria</span></b>
+      <i>Por Gabriele Pinheiro</i>
+    </a>
+    <div class="nav-links">
+      <a href="#porque">A curadoria</a>
+      <a href="#como">Como funciona</a>
+      <a href="#categorias">Categorias</a>
+      <a href="#preco">Acesso</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn-outline" href="./index.html">Entrar</a>
+      <a class="btn btn-dark" href="#preco">Quero meu acesso</a>
+    </div>
+  </nav>
+</div>
+
+<!-- HERO -->
+<header class="hero wrap" id="topo">
+  <span class="pill"><span class="dot"></span> Acesso à curadoria · Casa com Identidade</span>
+  <h1>Mobiliário <span class="ital">com curadoria</span>,<br><span class="muted">para a sua casa na Europa e no Brasil.</span></h1>
+  <p class="lead">Uma seleção de móveis e decoração avaliada peça por peça pela arquiteta Gabriele Pinheiro — estilo, qualidade, materiais e procedência. Você navega, favorita e compra direto na loja de origem.</p>
+  <div class="actions">
+    <a class="btn btn-dark btn-lg" href="#preco">Quero meu acesso →</a>
+    <a class="link-arrow" href="./index.html">Ver a curadoria ›</a>
+  </div>
+
+  <div class="preview">
+    <figure><img src="./assets/capas/capa-sofa.png" alt="Sofá"><figcaption>Sofá</figcaption></figure>
+    <figure><img src="./assets/capas/capa-mesa-de-jantar.png" alt="Mesa de jantar"><figcaption>Mesa de jantar</figcaption></figure>
+    <figure><img src="./assets/capas/capa-luminaria.png" alt="Iluminação"><figcaption>Iluminação</figcaption></figure>
+    <figure><img src="./assets/capas/capa-tapete.png" alt="Tapete"><figcaption>Tapete</figcaption></figure>
+  </div>
+</header>
+
+<!-- 01 POR QUE -->
+<section id="porque" class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">01 — Por que a CCI</span>
+    <h2>Curadoria de verdade, <span class="ital">não vitrine.</span></h2>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <span class="eyebrow">Olhar de arquiteta</span>
+      <h3>Cada peça é escolhida a dedo</h3>
+      <p>Gabriele seleciona com critério de projeto: estilo, escala, materiais construtivos e contexto. Nada de catálogo infinito — só o que vale a pena.</p>
+    </div>
+    <div class="col">
+      <span class="eyebrow">Seleção editorial</span>
+      <h3>Qualidade acima de quantidade</h3>
+      <p>Avaliamos design, acabamento, reputação da loja e faixa de preço. Uma curadoria enxuta para você decidir com confiança e bom gosto.</p>
+    </div>
+    <div class="col">
+      <span class="eyebrow">Europa &amp; Brasil</span>
+      <h3>Na sua região, na sua moeda</h3>
+      <p>Filtre pelo país onde mora e veja o preço na moeda local. A compra é feita direto na loja de origem, sem intermediários.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 COMO FUNCIONA -->
+<section id="como" class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">02 — Como funciona</span>
+    <h2>Do acesso à peça certa, <span class="ital">em minutos.</span></h2>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="num">01</div><div><h3>Garanta seu acesso</h3><p>Compra pela Hotmart, com acesso liberado automaticamente. Sem mensalidade surpresa.</p></div></div>
+    <div class="step"><div class="num">02</div><div><h3>Explore por categoria</h3><p>24 categorias organizadas — do sofá ao papel de parede. Tudo com a capa e a identidade da curadoria.</p></div></div>
+    <div class="step"><div class="num">03</div><div><h3>Compre direto na loja</h3><p>Clicou, abriu o site da loja de origem. A compra, a entrega e o atendimento são com a loja.</p></div></div>
+    <div class="step"><div class="num">04</div><div><h3>Favorite e acompanhe</h3><p>Salve o que amou e volte sempre. Todo mês entram peças novas na curadoria.</p></div></div>
+  </div>
+</section>
+
+<!-- 03 CATEGORIAS -->
+<section id="categorias" class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">03 — A curadoria</span>
+    <h2>Da estrutura ao <span class="ital">detalhe.</span></h2>
+    <p>24 categorias para vestir a casa inteira — móveis, iluminação, têxteis e decoração.</p>
+  </div>
+  <div class="gallery">
+    <figure><img src="./assets/capas/capa-sofa.png" alt=""><figcaption>Sofá</figcaption></figure>
+    <figure><img src="./assets/capas/capa-poltrona.png" alt=""><figcaption>Poltrona</figcaption></figure>
+    <figure><img src="./assets/capas/capa-mesa-de-jantar.png" alt=""><figcaption>Mesa de jantar</figcaption></figure>
+    <figure><img src="./assets/capas/capa-cama.png" alt=""><figcaption>Cama</figcaption></figure>
+    <figure><img src="./assets/capas/capa-mesa-lateral.png" alt=""><figcaption>Mesa lateral</figcaption></figure>
+    <figure><img src="./assets/capas/capa-cadeira-de-escritorio.png" alt=""><figcaption>Cadeira de escritório</figcaption></figure>
+    <figure><img src="./assets/capas/capa-luminaria.png" alt=""><figcaption>Iluminação</figcaption></figure>
+    <figure><img src="./assets/capas/capa-papel-de-parede.png" alt=""><figcaption>Papel de parede</figcaption></figure>
+  </div>
+  <div style="text-align:center;margin-top:36px"><a class="btn btn-outline btn-lg" href="./index.html">Ver a curadoria completa →</a></div>
+</section>
+
+<!-- PREÇO -->
+<section id="preco" class="price-sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Acesso</span>
+      <h2>Um acesso. <span class="ital">A curadoria inteira.</span></h2>
+    </div>
+    <div class="price-card">
+      <span class="eyebrow">Acesso à curadoria</span>
+      <div class="value">R$ [valor]<small> / ano</small></div>
+      <div class="note">Valor definido na Hotmart — ajuste antes de publicar.</div>
+      <ul class="incl">
+        <li>Catálogo completo, organizado por 24 categorias</li>
+        <li>Novidades todo mês</li>
+        <li>Favoritos salvos na sua conta</li>
+        <li>Europa &amp; Brasil, com preço na moeda local</li>
+      </ul>
+      <a class="btn btn-dark btn-lg" href="#" style="width:100%;justify-content:center">Quero meu acesso →</a>
+    </div>
+    <div class="guarantee">
+      <div class="seal"><span class="seal-n">7</span><span class="seal-u">dias</span></div>
+      <p><b>Garantia incondicional de 7 dias.</b> Não curtiu? Devolvemos 100% do valor, sem perguntas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Dúvidas</span>
+    <h2>Perguntas <span class="ital">frequentes.</span></h2>
+  </div>
+  <div class="faq">
+    <details><summary>A CCI vende os móveis?</summary><p>Não. A Casa com Identidade é uma curadoria indicativa. A compra acontece diretamente no site da loja de origem — nós apenas selecionamos e organizamos as melhores peças para você.</p></details>
+    <details><summary>Como recebo o acesso depois de comprar?</summary><p>O acesso é liberado automaticamente pela Hotmart após a compra. Você entra com seu e-mail e já começa a navegar.</p></details>
+    <details><summary>Funciona para quem mora no Brasil e na Europa?</summary><p>Sim. Você escolhe a região (Europa € ou Brasil R$) e, na Europa, filtra pelo país onde mora para ver só o que entrega aí.</p></details>
+    <details><summary>Os preços são fixos?</summary><p>Mostramos uma faixa de preço por símbolos de moeda, como referência. O valor final é sempre o que estiver na loja de origem no momento da compra.</p></details>
+    <details><summary>Posso cancelar?</summary><p>Você tem 7 dias de garantia incondicional. Não gostou, devolvemos 100% do valor.</p></details>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="final">
+  <h2>Sua casa merece <span class="ital">uma boa curadoria.</span></h2>
+  <p>Pare de garimpar mil sites. Tenha, num só lugar, as peças que a arquiteta escolheria.</p>
+  <a class="btn btn-dark btn-lg" href="#">Quero meu acesso →</a>
+</div>
+
+<!-- FOOTER -->
+<footer class="wrap">
+  <div class="logo"><b>CCI <span>· Curadoria</span></b><i>Por Gabriele Pinheiro</i></div>
+  <div class="f-links">
+    <a href="./index.html">Entrar na curadoria</a>
+    <a href="#preco">Acesso</a>
+    <a href="mailto:contato@gabrielepinheiro.com">contato@gabrielepinheiro.com</a>
+  </div>
+  <small>© <span id="ano"></span> Casa com Identidade · Curadoria de mobiliário e decoração.</small>
+</footer>
+<script>document.getElementById('ano').textContent=new Date().getFullYear();</script>
+</body>
+</html>

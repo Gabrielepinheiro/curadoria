@@ -43,11 +43,12 @@ header{padding:26px 5vw 0;display:flex;justify-content:space-between;align-items
 .chip-btn:hover,.chip-btn.active{background:var(--ink);color:var(--linen);border-color:var(--ink)}
 .chip-btn .count{background:var(--gold);color:#fff;border-radius:999px;font-size:10px;min-width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
 
-.hero{padding:38px 5vw 8px}
-.hero h2{font-size:clamp(26px,4vw,40px);max-width:640px;line-height:1.15}
-.hero .greet{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--bronze);margin-bottom:10px} /*+ NOVO: saudação */
-.hero .greet button{background:none;border:none;color:var(--gold);font-size:12px;text-decoration:underline;letter-spacing:.05em;text-transform:none}
-.hero p{margin-top:10px;font-size:14px;color:var(--bronze);max-width:520px;line-height:1.65}
+.hero{padding:40px 5vw 8px}
+.hero h2{font-size:clamp(32px,5.2vw,56px);max-width:760px;line-height:1.08;letter-spacing:-.01em}
+.hero h2 .ital{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;color:var(--bronze);font-size:1.08em}
+.hero .greet{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px} /*+ NOVO: saudação */
+.hero .greet button{background:none;border:none;color:var(--bronze);font-size:12px;text-decoration:underline;letter-spacing:.05em;text-transform:none}
+.hero p{margin-top:14px;font-size:14.5px;color:var(--bronze);max-width:560px;line-height:1.7}
 
 /* ---------- BUSCA (+ NOVO) ---------- */
 .toolbar{display:flex;gap:14px;align-items:center;justify-content:flex-start;padding:22px 5vw 2px;flex-wrap:wrap}
