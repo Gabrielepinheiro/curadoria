@@ -78,7 +78,7 @@ header{padding:26px 5vw 0;display:flex;justify-content:space-between;align-items
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:3px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s, box-shadow .2s;position:relative}
 .card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(60,50,30,.09)}
-.card .img{aspect-ratio:1/.85;background:linear-gradient(170deg,#FBF9F4,#EFEAE0);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
+.card .img{aspect-ratio:1/.85;background:#FFFFFF;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden}
 .card .img svg{width:62%;height:62%;stroke:var(--bronze);fill:none;stroke-width:2.4;opacity:.85}
 .card .img img{width:100%;height:100%;object-fit:cover} /*+ NOVO: foto real do produto */
 .badge-new{position:absolute;top:12px;left:12px;background:var(--gold);color:#fff;font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:4px 10px;border-radius:2px} /*+ NOVO: selo Novo */
@@ -94,14 +94,11 @@ header{padding:26px 5vw 0;display:flex;justify-content:space-between;align-items
 .price{font-family:'Marcellus',serif;font-size:15px;letter-spacing:.06em;color:var(--ink)}
 .price .dim{color:var(--line)}
 
-/* Cartão "Em breve" (+ NOVO): categoria ainda sem produtos cadastrados */
-.badge-soon{position:absolute;top:12px;left:12px;background:var(--bronze-soft);color:#fff;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:4px 10px;border-radius:2px}
+/* Cartão de categoria ainda sem produtos cadastrados (+ NOVO) */
 .card-soon{cursor:default}
 .card-soon:hover{transform:none;box-shadow:none}
-.card-soon .img{opacity:.9}
 .card-soon .store{color:var(--bronze-soft)}
 .card-soon .name{color:var(--bronze)}
-.card-soon .ships{font-style:italic;color:var(--bronze-soft)}
 
 /* ---------- ADMIN ---------- */
 #adminPanel{position:fixed;inset:0;background:rgba(44,40,32,.45);display:none;align-items:flex-start;justify-content:center;z-index:90;padding:5vh 16px;overflow:auto}

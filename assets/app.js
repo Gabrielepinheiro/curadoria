@@ -32,7 +32,18 @@ const LEGAL_TEXT = `
 <p><strong>A curadoria não substitui um projeto de interiores.</strong> As sugestões têm caráter inspiracional e não constituem projeto de arquitetura ou decoração personalizado.</p>
 <p><strong>Responsabilidade da loja.</strong> Pagamento, entrega, trocas, garantias e atendimento são de inteira responsabilidade da loja de origem.</p>
 <p><strong>Propriedade do conteúdo.</strong> A curadoria, a organização e os textos desta plataforma são de propriedade da Casa com Identidade.</p>
-<p style="color:var(--bronze-soft);font-style:italic">[Texto provisório — será substituído pelo texto final fornecido por Gabriele.]</p>
+
+<h4 style="font-family:'Marcellus',serif;font-size:19px;margin:22px 0 6px">Proteção de dados — DSGVO (Alemanha) e RGPD/GDPR (União Europeia)</h4>
+<p>Esta plataforma respeita o Regulamento Geral sobre a Proteção de Dados da União Europeia (RGPD/GDPR, Regulamento (UE) 2016/679) e a lei de proteção de dados da Alemanha (Bundesdatenschutzgesetz — DSGVO). Para usuários no Brasil, aplica-se também a LGPD (Lei 13.709/2018).</p>
+<p><strong>Responsável pelo tratamento (Verantwortliche/Controller).</strong> Casa com Identidade — [nome/razão social], [endereço completo na Alemanha/UE], e-mail: [e-mail de contato]. Encarregado de proteção de dados (Datenschutzbeauftragte/DPO), se aplicável: [contato].</p>
+<p><strong>Dados que tratamos.</strong> Dados de cadastro e acesso (nome, e-mail/credencial), registro do aceite deste aviso (data e hora) e suas preferências dentro da plataforma (peças favoritadas). Não vendemos produtos nem processamos pagamentos — estes ocorrem nas lojas de terceiros, sob as políticas delas.</p>
+<p><strong>Base legal (Art. 6 GDPR).</strong> Execução do contrato de acesso à curadoria (Art. 6(1)(b)); consentimento, quando aplicável (Art. 6(1)(a)); e legítimo interesse na operação e segurança da plataforma (Art. 6(1)(f)).</p>
+<p><strong>Cookies e armazenamento local.</strong> Utilizamos apenas armazenamento estritamente necessário ao funcionamento (manter o login, registrar o aceite deste aviso e guardar seus favoritos). Cookies não essenciais (ex.: analíticos) só serão usados mediante o seu consentimento prévio, por meio do banner de consentimento.</p>
+<p><strong>Compartilhamento e transferências.</strong> Os dados são tratados em provedores de infraestrutura na União Europeia. Eventuais transferências internacionais observam as salvaguardas do GDPR (cláusulas contratuais padrão). Ao clicar numa peça, você é direcionado ao site da loja, que passa a tratar seus dados conforme a política própria.</p>
+<p><strong>Prazo de retenção.</strong> Mantemos os dados apenas pelo tempo necessário às finalidades acima ou enquanto durar o seu acesso; depois disso, são eliminados ou anonimizados.</p>
+<p><strong>Seus direitos (Art. 15–22 GDPR / LGPD).</strong> Você pode solicitar acesso, correção, eliminação, portabilidade, limitação ou oposição ao tratamento, além de retirar o consentimento a qualquer momento, escrevendo para [e-mail de contato]. Você também tem o direito de apresentar reclamação a uma autoridade de controle (na Alemanha, a autoridade estadual de proteção de dados competente).</p>
+
+<p style="color:var(--bronze-soft);font-style:italic">[Minuta para revisão jurídica. Os campos entre colchetes devem ser preenchidos por Gabriele, e o texto final (Termos de Uso + Política de Privacidade/Datenschutzerklärung) deve ser validado por advogado(a). O banner de consentimento de cookies será ativado na configuração do Wix.]</p>
 `;
 
 // =============================================================
@@ -234,12 +245,10 @@ function renderGrid() {
   }).join('');
 
   const soonHTML = soon.map((cat) => `<article class="card card-soon">
-      <span class="badge-soon">Em breve</span>
       <div class="img"><img src="${coverFor(cat)}" alt="${escapeAttr(cat)}"></div>
       <div class="info">
-        <div class="store">Categoria</div>
+        <div class="store">Em breve</div>
         <div class="name">${cat}</div>
-        <div class="meta"><div class="ships">Novas peças em breve nesta categoria.</div></div>
       </div>
     </article>`).join('');
 
