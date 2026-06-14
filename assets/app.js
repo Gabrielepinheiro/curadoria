@@ -3,7 +3,7 @@
 //  (data-layer.js), nunca direto com o banco.
 // =============================================================
 import {
-  REGIONS, COUNTRIES, PRICE_BANDS, CATEGORIES, iconFor, regionById,
+  REGIONS, COUNTRIES, PRICE_BANDS, CATEGORIES, coverFor, regionById,
 } from './config.js';
 import { auth, data, favorites } from './data-layer.js';
 
@@ -180,6 +180,13 @@ function renderGrid() {
     : state.view === 'novidades' ? 'Novidades da curadoria.'
     : 'Móveis e decoração com curadoria, loja a loja.';
 
+  $('heroSub').textContent =
+    state.view === 'favoritos'
+      ? 'Espaço feito para você não perder os itens que mais gostou.'
+      : state.view === 'novidades'
+      ? 'As peças que acabaram de entrar na curadoria.'
+      : 'Cada peça abaixo foi avaliada: reputação da loja e países de entrega. Clique na peça para abrir direto na loja.';
+
   // toolbar de país só na curadoria
   $('countryPick').style.display =
     (state.view === 'curadoria' && (COUNTRIES[state.region] || []).length > 1) ? '' : 'none';
@@ -198,9 +205,9 @@ function renderGrid() {
   grid.innerHTML = items.map((p) => {
     const region = regionById(p.region);
     const fav = state.favs.has(p.id);
-    const imgInner = p.imagem
-      ? `<img src="${p.imagem}" alt="${escapeAttr(p.nome)}">`
-      : iconFor(p.categoria);
+    // Foto própria do produto, ou a capa oficial aprovada da categoria.
+    const imgSrc = p.imagem || coverFor(p.categoria);
+    const imgInner = `<img src="${imgSrc}" alt="${escapeAttr(p.nome)}">`;
     return `<article class="card">
       ${isActiveNovelty(p) ? '<span class="badge-new">Novo</span>' : ''}
       <button class="fav ${fav ? 'on' : ''}" data-fav="${p.id}" aria-label="Favoritar">♥</button>
@@ -408,6 +415,10 @@ function wireEvents() {
 // =============================================================
 async function init() {
   wireEvents();
+  // "Cadastrar produto" é só para a administradora/equipe — escondido do cliente.
+  // No preview, acesse com ?admin=1 no fim do endereço. No Wix, virá da permissão real.
+  const isAdmin = new URLSearchParams(location.search).get('admin') === '1';
+  if (isAdmin) $('adminBtn').style.display = '';
   state.user = await auth.currentUser();
   if (state.user) {
     $('loginScreen').style.display = 'none';

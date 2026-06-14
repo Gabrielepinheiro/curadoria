@@ -73,6 +73,38 @@ export function iconFor(category) {
   return CATEGORY_ICONS[category] || CATEGORY_ICONS.DEFAULT;
 }
 
+// Capas oficiais aprovadas (PNG 1000×850, ícone bronze sobre linho).
+// Usadas como imagem do card quando o produto não tem foto própria.
+const COVERS = {
+  'Sofá': 'capa-sofa.png',
+  'Poltrona': 'capa-poltrona.png',
+  'Cadeira': 'capa-cadeira.png',
+  'Banco & Banqueta': 'capa-banco-banqueta.png',
+  'Mesa de jantar': 'capa-mesa-de-jantar.png',
+  'Mesa de centro': 'capa-mesa-de-centro.png',
+  'Mesa lateral': 'capa-mesa-lateral.png',
+  'Mesa de cabeceira': 'capa-mesa-de-cabeceira.png',
+  'Aparador & Buffet': 'capa-aparador-buffet.png',
+  'Estante': 'capa-estante.png',
+  'Cama': 'capa-cama.png',
+  'Cômoda': 'capa-comoda.png',
+  'Escrivaninha': 'capa-escrivaninha.png',
+  'Puff': 'capa-puff.png',
+  'Luminária': 'capa-luminaria.png',
+  'Tapete': 'capa-tapete.png',
+  'Cortina': 'capa-cortina.png',
+  'Quadros & Arte': 'capa-quadros-arte.png',
+  'Espelho': 'capa-espelho.png',
+  'Roupa de cama & Têxtil': 'capa-roupa-de-cama-textil.png',
+  'Área externa': 'capa-area-externa.png',
+  'Decoração': 'capa-decoracao.png',
+};
+
+export function coverFor(category) {
+  const file = COVERS[category] || COVERS['Decoração'];
+  return `./assets/capas/${file}`;
+}
+
 export function regionById(id) {
   return REGIONS.find((r) => r.id === id) || REGIONS[0];
 }
