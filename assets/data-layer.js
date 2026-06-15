@@ -202,11 +202,16 @@ const wixAdapter = (() => {
         return null;
       },
       async login() {
+        const setS = (m) => { try { const el = document.getElementById('loginError'); if (el) { el.style.color = 'var(--bronze)'; el.textContent = m; } } catch (_) {} };
+        setS('1/4 Carregando conexão com o Wix…');
         const c = await getClient();
+        setS('2/4 Preparando login…');
         const redirect = location.href; // preserva ?fonte=wix&login=wix ao voltar
         const oauthData = c.auth.generateOAuthData(redirect, redirect);
         lwrite('cci.oauthData', oauthData);
+        setS('3/4 Pedindo o endereço de login ao Wix…');
         const { authUrl } = await c.auth.getAuthUrl(oauthData);
+        setS('4/4 Redirecionando para o login…');
         location.href = authUrl;
       },
       async logout() {
