@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curadoria · Casa com Identidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="mark">Casa com Identidade</div>
+    <h1>Curadoria de Interiores</h1>
+    <p>Acesso exclusivo para clientes. Lojas que eu seleciono na Europa — com um toque brasileiro pra trazer na mala.</p>
+    <input type="text" id="accessName" placeholder="Seu nome" autocomplete="name">
+    <div class="login-error" id="loginError"></div>
+    <button class="btn-main" id="loginBtn">Entrar</button>
+    <div class="login-hint" id="loginHint">Demonstração — digite seu nome para entrar. No site real, o acesso é liberado pela compra na Hotmart.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<header>
+  <div class="brand-wrap">
+    <div class="brand">CCI <span>· Curadoria</span></div>
+    <div class="brand-by">Por Gabriele Pinheiro</div>
+  </div>
+  <div class="header-actions">
+    <button class="chip-btn" id="newsBtn">✦ Novidades</button>
+    <button class="chip-btn" id="favBtn">♥ Favoritos <span class="count" id="favCount">0</span></button>
+    <a class="chip-btn" id="bonusLink" href="https://pin.it/1rXqLrmLt" target="_blank" rel="noopener" style="text-decoration:none">❖ Caderno de Referências</a>
+    <a class="chip-btn" id="igLink" href="https://www.instagram.com/gabrielepinhheiro/" target="_blank" rel="noopener" style="text-decoration:none" aria-label="Instagram">Instagram</a>
+    <button class="chip-btn" id="adminBtn" style="display:none">+ Cadastrar produto</button>
+    <button class="chip-btn" id="logoutBtn">Sair</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="greet" id="greet"></div>
+  <h2 id="heroTitle">Móveis e decoração com curadoria, loja a loja.</h2>
+  <p id="heroSub">Cada peça abaixo foi avaliada: reputação da loja e países de entrega. Clique na peça para abrir direto na loja.</p>
+</section>
+
+<div class="toolbar">
+  <label class="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+    <input type="search" id="searchInput" placeholder="Buscar por nome, loja ou referência…">
+  </label>
+  <div class="country-pick" id="countryPick" style="display:none">
+    <span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--bronze)">Você mora em</span>
+    <select id="countrySelect"></select>
+  </div>
+</div>
+
+<nav class="atlas" id="atlas"></nav>
+<div class="cats" id="cats"></div>
+<main class="grid" id="grid"></main>
+<div class="empty" id="emptyState" style="display:none">
+  <div class="display">Nada por aqui ainda</div>
+  <span id="emptyMsg"></span>
+</div>
+
+<footer style="padding:30px 5vw 50px;border-top:1px solid var(--line);text-align:center">
+  <button id="legalLink" style="background:none;border:none;color:var(--bronze);font-size:12px;letter-spacing:.1em;text-decoration:underline;cursor:pointer">Aviso legal</button>
+</footer>
+
+<!-- ADMIN: cadastro rápido (briefing §5.7) -->
+<div id="adminPanel">
+  <div class="admin-card">
+    <h3>Cadastrar produto</h3>
+    <div class="sub">Cole a imagem do produto (Ctrl+V) ou o endereço dela, preencha os campos e use <strong>Salvar + próximo</strong> para cadastrar em sequência. A loja preenche região e entrega automaticamente.</div>
+
+    <div class="field">
+      <label>Imagem do produto</label>
+      <div class="paste-zone" id="pasteZone" tabindex="0">
+        <span class="hint" id="pasteHint"><b>Clique aqui e tecle Ctrl+V</b><br>para colar a imagem, ou arraste um arquivo</span>
+      </div>
+      <input type="url" id="aImgUrl" placeholder="…ou cole o endereço (URL) da imagem" style="margin-top:8px">
+    </div>
+
+    <div class="field">
+      <label>Link do produto na loja</label>
+      <input type="url" id="aLink" placeholder="https://www.loja.com/produto...">
+    </div>
+
+    <div class="row-2">
+      <div class="field"><label>Nome (português)</label><input id="aName" placeholder="Ex.: Mesa de jantar Linnea"></div>
+      <div class="field"><label>Referência da loja (original)</label><input id="aRef" placeholder="Ex.: Esstisch Linnea Eiche"></div>
+    </div>
+
+    <div class="row-2">
+      <div class="field"><label>Loja</label><select id="aStore"></select></div>
+      <div class="field"><label>Categoria</label><select id="aCat"></select></div>
+    </div>
+
+    <div class="field"><label>Entrega (vem da loja)</label><input id="aShips" placeholder="—" readonly style="color:var(--bronze)"></div>
+
+    <div class="field">
+      <label>Faixa de preço</label>
+      <div class="euro-pick" id="euroPick"></div>
+    </div>
+
+    <div class="check-row">
+      <input type="checkbox" id="aNew">
+      <label for="aNew" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)">Marcar como novidade</label>
+      <input type="date" id="aNewUntil" style="display:none;width:auto;padding:8px 10px">
+    </div>
+
+    <div class="admin-note" id="adminNote"></div>
+
+    <div class="admin-actions">
+      <button class="btn-main" style="flex:1" id="saveNextBtn">Salvar + próximo</button>
+      <button class="btn-ghost" id="saveCloseBtn">Salvar</button>
+      <button class="btn-ghost" id="adminCloseBtn">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- AVISO LEGAL (briefing §5.2) -->
+<div id="legalModal">
+  <div class="legal-card">
+    <h3>Aviso legal</h3>
+    <div class="legal-body" id="legalBody"></div>
+    <div class="admin-actions">
+      <button class="btn-main" style="flex:1" id="legalAcceptBtn">Li e concordo</button>
+      <button class="btn-ghost" id="legalCloseBtn" style="display:none">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="./assets/app.js"></script>
+</body>
+</html>
