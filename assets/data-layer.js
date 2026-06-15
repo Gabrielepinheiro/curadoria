@@ -175,18 +175,25 @@ const wixAdapter = (() => {
       async currentUser() {
         const c = await getClient();
         try {
-          if (typeof location !== 'undefined' && /[?&](code|state|error)=/.test(location.search)) {
-            const returned = await c.auth.parseFromUrl();
-            const oauthData = lread('cci.oauthData', null);
-            if (returned && returned.code && oauthData) {
-              const tokens = await c.auth.getMemberTokens(returned.code, returned.state, oauthData);
-              c.auth.setTokens(tokens);
-              lwrite('cci.wixTokens', tokens);
-              localStorage.removeItem('cci.oauthData');
+          if (typeof location !== 'undefined') {
+            // O Wix devolve code/state no FRAGMENTO (#...), não na query (?).
+            // Por isso lemos os dois lugares.
+            const q = new URLSearchParams((location.search || '').replace(/^\?/, ''));
+            const h = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+            const code = q.get('code') || h.get('code');
+            const state = q.get('state') || h.get('state');
+            const err = q.get('error') || h.get('error');
+            if (code || err) {
+              const oauthData = lread('cci.oauthData', null);
+              if (code && oauthData) {
+                const tokens = await c.auth.getMemberTokens(code, state, oauthData);
+                c.auth.setTokens(tokens);
+                lwrite('cci.wixTokens', tokens);
+                localStorage.removeItem('cci.oauthData');
+              }
+              // limpa code/state/error da barra (query e hash)
+              history.replaceState({}, '', location.origin + location.pathname);
             }
-            const p = new URLSearchParams(location.search);
-            ['code', 'state', 'error', 'error_description'].forEach((k) => p.delete(k));
-            history.replaceState({}, '', location.pathname + (p.toString() ? '?' + p : ''));
           }
         } catch (e) { console.warn('Wix login (callback):', e); }
         try {
