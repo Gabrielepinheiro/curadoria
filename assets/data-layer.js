@@ -147,6 +147,8 @@ const wixAdapter = (() => {
   };
   const refId = (v) => (v && typeof v === 'object') ? (v._id || v.id) : v;
   const nameOf = (o) => o.nome || o.title || o.titulo || o.Title || '';
+  // aceita campo vindo como Texto OU como Tags (array) — usa o 1º valor
+  const oneTag = (v) => Array.isArray(v) ? (v[0] || '') : (v || '');
   const imgUrl = (v) => {
     if (!v) return '';
     if (typeof v === 'string') return v.startsWith('wix:image://') ? '' : v;
@@ -172,7 +174,7 @@ const wixAdapter = (() => {
     data: {
       async listStores() {
         return (await queryAll('Lojas')).map((s) => ({
-          id: s._id, name: nameOf(s), site: s.site, region: s.regiao, ships: s.entregaEm || [],
+          id: s._id, name: nameOf(s), site: s.site, region: oneTag(s.regiao), ships: s.entregaEm || [],
         }));
       },
       async createStore() { throw new Error('No modo Wix, cadastre lojas pelo CMS do Wix.'); },
@@ -183,10 +185,10 @@ const wixAdapter = (() => {
           const loja = stores[refId(p.lojaId)] || {};
           return {
             id: p._id, nome: nameOf(p), referencia: p.referencia, link: p.link || '#',
-            imagem: imgUrl(p.imagem), categoria: p.categoria,
+            imagem: imgUrl(p.imagem), categoria: oneTag(p.categoria),
             faixaPreco: Number(p.faixaPreco) || 1,
             novidade: !!p.novidade, novidadeAte: dateStr(p.novidadeAte),
-            region: loja.regiao, ships: loja.entregaEm || [], storeName: nameOf(loja),
+            region: oneTag(loja.regiao), ships: loja.entregaEm || [], storeName: nameOf(loja),
           };
         });
       },
