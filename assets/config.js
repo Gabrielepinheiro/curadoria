@@ -58,22 +58,17 @@ export const CATEGORIES = [
   'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
 ];
 
-// Mobiliário (móvel grande): NÃO entra na curadoria Brasil. O Brasil é
-// um bônus de itens fáceis de trazer na mala, que dão identidade à casa.
-// Para incluir/remover uma categoria do Brasil, edite esta lista.
-export const FURNITURE = [
-  'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
-  'Cama', 'Cômoda', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
-  'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Poltrona', 'Puff', 'Sofá',
-  'Área externa',
+// A aba Brasil é um BÔNUS: só itens fáceis de trazer na mala, que dão
+// identidade à casa. Nada de mobiliário. Para incluir/remover uma
+// categoria do Brasil, edite esta lista.
+export const BRASIL_CATEGORIES = [
+  'Decoração', 'Quadros & Arte', 'Roupa de cama & Têxtil',
 ];
 
-// Categorias disponíveis por região. Europa = todas. Brasil = só as
-// "fáceis de trazer" (todas menos o mobiliário acima).
+// Categorias disponíveis por região. Europa = todas. Brasil = só a
+// seleção "fácil de trazer" definida acima.
 export function categoriesForRegion(regionId) {
-  return regionId === 'brasil'
-    ? CATEGORIES.filter((c) => !FURNITURE.includes(c))
-    : CATEGORIES;
+  return regionId === 'brasil' ? BRASIL_CATEGORIES : CATEGORIES;
 }
 
 // Ícones de categoria — traço bronze sobre fundo linho (do protótipo).
