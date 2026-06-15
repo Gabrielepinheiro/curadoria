@@ -146,6 +146,7 @@ const wixAdapter = (() => {
     return { ...d, _id: (it && it._id) || d._id };
   };
   const refId = (v) => (v && typeof v === 'object') ? (v._id || v.id) : v;
+  const nameOf = (o) => o.nome || o.title || o.titulo || o.Title || '';
   const imgUrl = (v) => {
     if (!v) return '';
     if (typeof v === 'string') return v.startsWith('wix:image://') ? '' : v;
@@ -171,7 +172,7 @@ const wixAdapter = (() => {
     data: {
       async listStores() {
         return (await queryAll('Lojas')).map((s) => ({
-          id: s._id, name: s.nome, site: s.site, region: s.regiao, ships: s.entregaEm || [],
+          id: s._id, name: nameOf(s), site: s.site, region: s.regiao, ships: s.entregaEm || [],
         }));
       },
       async createStore() { throw new Error('No modo Wix, cadastre lojas pelo CMS do Wix.'); },
@@ -181,11 +182,11 @@ const wixAdapter = (() => {
         return prods.map((p) => {
           const loja = stores[refId(p.lojaId)] || {};
           return {
-            id: p._id, nome: p.nome, referencia: p.referencia, link: p.link || '#',
+            id: p._id, nome: nameOf(p), referencia: p.referencia, link: p.link || '#',
             imagem: imgUrl(p.imagem), categoria: p.categoria,
             faixaPreco: Number(p.faixaPreco) || 1,
             novidade: !!p.novidade, novidadeAte: dateStr(p.novidadeAte),
-            region: loja.regiao, ships: loja.entregaEm || [], storeName: loja.nome,
+            region: loja.regiao, ships: loja.entregaEm || [], storeName: nameOf(loja),
           };
         });
       },
