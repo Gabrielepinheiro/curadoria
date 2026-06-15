@@ -211,8 +211,8 @@ function renderGrid() {
       $('heroTitle').innerHTML = 'Um toque do Brasil <em class="ital">com&nbsp;curadoria</em>.';
       $('heroSub').textContent = 'Peças brasileiras fáceis de trazer na mala — decoração, arte e têxteis pra dar a sua essência à casa que você construiu.';
     } else {
-      $('heroTitle').innerHTML = 'Móveis e decoração <em class="ital">com&nbsp;curadoria</em>, loja a loja.';
-      $('heroSub').textContent = 'Explore a curadoria por categoria — uma seleção editorial de móveis e decoração, escolhida peça por peça.';
+      $('heroTitle').innerHTML = 'Uma casa bonita na Europa, <em class="ital">com&nbsp;curadoria</em>.';
+      $('heroSub').textContent = 'As melhores lojas daqui, garimpadas por mim peça por peça — do sofá ao último detalhe, pra você montar a sua casa sem se perder nem errar.';
     }
   } else if (state.search) {
     $('heroTitle').innerHTML = 'Resultados da <em class="ital">busca.</em>';
