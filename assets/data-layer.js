@@ -142,10 +142,10 @@ const wixAdapter = (() => {
     return client;
   }
 
-  // Login real de membros só quando ?login=wix (assim o teste do catálogo
-  // por nome continua funcionando em ?fonte=wix).
-  const REAL_LOGIN = (typeof location !== 'undefined')
-    && new URLSearchParams(location.search).get('login') === 'wix';
+  // Login real de membros é o PADRÃO no modo Wix. Para validar o catálogo
+  // com o login simples por nome (sem senha), acesse com ?login=nome.
+  const REAL_LOGIN = (typeof location === 'undefined')
+    || new URLSearchParams(location.search).get('login') !== 'nome';
 
   // normaliza um item (campos podem vir no topo ou sob .data)
   const F = (it) => {
@@ -287,8 +287,9 @@ const wixAdapter = (() => {
 const _params = (typeof location !== 'undefined') ? new URLSearchParams(location.search) : new URLSearchParams();
 const _urlMode = _params.get('fonte');
 const MODE = (_urlMode === 'wix' || _urlMode === 'seed') ? _urlMode : CONFIG.mode;
-// true quando o login real de membros está ativo (?fonte=wix&login=wix)
-export const IS_REAL_LOGIN = MODE === 'wix' && _params.get('login') === 'wix';
+// true quando o login real de membros está ativo (padrão no modo Wix).
+// Para testar o catálogo com login simples por nome, use ?login=nome.
+export const IS_REAL_LOGIN = MODE === 'wix' && _params.get('login') !== 'nome';
 const active = MODE === 'wix' ? wixAdapter : seedAdapter;
 
 // Normaliza tudo para Promise, para a tela poder usar await
