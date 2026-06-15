@@ -25,18 +25,18 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 // ---------- AVISO LEGAL (texto final fornecido por Gabriele) ----------
 const LEGAL_TEXT = `
-<p><strong>Curadoria indicativa.</strong> A Casa com Identidade reúne uma seleção de produtos de lojas de terceiros. Não vendemos os produtos exibidos nem intermediamos a compra. Ao clicar numa peça, você é direcionado ao site da loja de origem, onde a compra acontece diretamente com o vendedor.</p>
+<p><strong>Curadoria indicativa.</strong> A Casa com Identidade reúne uma seleção de produtos de lojas de terceiros. Não vendemos os produtos exibidos nem intermediamos a compra. Ao clicar numa peça, você é direcionado ao site da loja terceira, onde a compra acontece diretamente com o vendedor.</p>
 <p><strong>Seleção por critério editorial.</strong> As peças são escolhidas com base em critérios de estilo, coerência estética, reputação da loja e faixa de preço. Nem todas são inspecionadas fisicamente pela arquiteta.</p>
 <p><strong>Informações do produto.</strong> Cores, medidas, materiais e disponibilidade podem variar em relação ao exibido. Recomendamos confirmar os detalhes diretamente na loja antes de finalizar qualquer compra.</p>
 <p><strong>Nome das lojas.</strong> O nome original da loja é mantido no idioma de origem para facilitar a localização do produto no site.</p>
 <p><strong>Caráter da curadoria.</strong> As sugestões têm caráter inspiracional e editorial. A curadoria não substitui um projeto de arquitetura ou decoração personalizado.</p>
-<p><strong>Compra, entrega e atendimento.</strong> Pagamento, entrega, trocas, garantias e suporte ao cliente são de responsabilidade exclusiva da loja de origem.</p>
+<p><strong>Compra, entrega e atendimento.</strong> Pagamento, entrega, trocas, garantias e suporte ao cliente são de responsabilidade exclusiva da loja terceira.</p>
 <p><strong>Propriedade intelectual.</strong> A curadoria, a organização do conteúdo e os textos desta plataforma são de propriedade de Gabriele Pinheiro. É proibida a reprodução sem autorização.</p>
 
 <h4 style="font-family:'Marcellus',serif;font-size:19px;margin:24px 0 8px">Proteção de dados — GDPR (União Europeia) e LGPD (Brasil)</h4>
 <p>Esta plataforma está em conformidade com o Regulamento Geral sobre a Proteção de Dados da União Europeia (GDPR, Regulamento (UE) 2016/679), a lei alemã de proteção de dados (DSGVO) e, para usuárias no Brasil, a LGPD (Lei 13.709/2018).</p>
 <p><strong>Responsável pelo tratamento.</strong> Gabriele Pinheiro — contato@gabrielepinheiro.com</p>
-<p><strong>Dados que tratamos.</strong> Dados de cadastro e acesso (nome e e-mail), registro do aceite deste aviso (data e hora) e preferências dentro da plataforma. Não processamos pagamentos — estes ocorrem diretamente nas lojas de origem, sob as políticas delas.</p>
+<p><strong>Dados que tratamos.</strong> Dados de cadastro e acesso (nome e e-mail), registro do aceite deste aviso (data e hora) e preferências dentro da plataforma. Não processamos pagamentos — estes ocorrem diretamente nas lojas terceiras, sob as políticas delas.</p>
 <p><strong>Base legal.</strong> Execução do contrato de acesso à curadoria (Art. 6(1)(b) GDPR); consentimento, quando aplicável (Art. 6(1)(a)); e legítimo interesse na operação e segurança da plataforma (Art. 6(1)(f)).</p>
 <p><strong>Cookies.</strong> Utilizamos apenas armazenamento estritamente necessário ao funcionamento da plataforma: manter o acesso ativo e registrar o aceite deste aviso. Cookies não essenciais só serão utilizados mediante consentimento prévio, por meio do banner de consentimento.</p>
 <p><strong>Compartilhamento de dados.</strong> Os dados são tratados em servidores na União Europeia. Eventuais transferências internacionais seguem as salvaguardas do GDPR. Ao acessar uma loja externa, seus dados passam a ser tratados conforme a política de privacidade da própria loja.</p>
@@ -207,8 +207,13 @@ function renderGrid() {
     $('heroTitle').innerHTML = '<em class="ital">Novidades</em> da curadoria.';
     $('heroSub').textContent = 'Aqui você encontra as peças que acabaram de entrar na curadoria. Todo mês, novas peças pra você.';
   } else if (isLanding) {
-    $('heroTitle').innerHTML = 'Móveis e decoração <em class="ital">com&nbsp;curadoria</em>, loja a loja.';
-    $('heroSub').textContent = 'Explore a curadoria por categoria — uma seleção editorial de móveis e decoração, escolhida peça por peça.';
+    if (state.region === 'brasil') {
+      $('heroTitle').innerHTML = 'Um toque do Brasil <em class="ital">com&nbsp;curadoria</em>.';
+      $('heroSub').textContent = 'Peças brasileiras fáceis de trazer na mala — decoração, arte e têxteis pra dar a sua essência à casa que você construiu.';
+    } else {
+      $('heroTitle').innerHTML = 'Móveis e decoração <em class="ital">com&nbsp;curadoria</em>, loja a loja.';
+      $('heroSub').textContent = 'Explore a curadoria por categoria — uma seleção editorial de móveis e decoração, escolhida peça por peça.';
+    }
   } else if (state.search) {
     $('heroTitle').innerHTML = 'Resultados da <em class="ital">busca.</em>';
     $('heroSub').textContent = 'Peças que combinam com o que você procura.';
@@ -301,6 +306,15 @@ function setView(view) {
   state.view = (state.view === view) ? 'curadoria' : view;
   setActiveChips();
   renderAtlas(); renderGrid();
+}
+
+// Abrir uma categoria a partir das capas (entrada da curadoria).
+function setCat(cat) {
+  state.category = cat;
+  state.view = 'curadoria';
+  state.search = '';
+  renderCats();
+  renderGrid();
 }
 
 function setActiveChips() {
