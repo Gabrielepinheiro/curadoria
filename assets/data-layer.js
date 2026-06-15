@@ -206,7 +206,9 @@ const wixAdapter = (() => {
         setS('1/4 Carregando conexão com o Wix…');
         const c = await getClient();
         setS('2/4 Preparando login…');
-        const redirect = location.href; // preserva ?fonte=wix&login=wix ao voltar
+        // URL limpa (sem ?query nem #hash): é esta que você cadastra como
+        // "redirect URI permitido" no cliente OAuth do Wix Headless.
+        const redirect = location.origin + location.pathname;
         const oauthData = c.auth.generateOAuthData(redirect, redirect);
         lwrite('cci.oauthData', oauthData);
         setS('3/4 Pedindo o endereço de login ao Wix…');
@@ -219,7 +221,7 @@ const wixAdapter = (() => {
         localStorage.removeItem('cci.wixTokens');
         localStorage.removeItem(LS_USER);
         try {
-          const { logoutUrl } = await c.auth.logout(location.href);
+          const { logoutUrl } = await c.auth.logout(location.origin + location.pathname);
           location.href = logoutUrl;
         } catch { location.reload(); }
       },
