@@ -48,7 +48,18 @@ const LEGAL_TEXT = `
 //  LOGIN
 // =============================================================
 async function doLogin() {
-  if (IS_REAL_LOGIN) { await auth.login(); return; } // redireciona para o login seguro do Wix
+  if (IS_REAL_LOGIN) {
+    $('loginError').style.color = 'var(--bronze)';
+    $('loginError').textContent = 'Abrindo o login do Wix…';
+    try {
+      await auth.login(); // redireciona para o login seguro do Wix
+    } catch (e) {
+      console.error('Falha no login Wix:', e);
+      $('loginError').style.color = '#A05A4A';
+      $('loginError').textContent = 'Erro ao abrir o login: ' + (e && e.message ? e.message : e);
+    }
+    return;
+  }
   const name = $('accessName').value.trim();
   if (!name) { $('loginError').textContent = 'Digite seu nome para entrar.'; return; }
   state.user = await auth.login(name);
