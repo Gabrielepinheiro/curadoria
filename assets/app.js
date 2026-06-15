@@ -3,7 +3,7 @@
 //  (data-layer.js), nunca direto com o banco.
 // =============================================================
 import {
-  REGIONS, COUNTRIES, PRICE_BANDS, CATEGORIES, coverFor, regionById,
+  REGIONS, COUNTRIES, PRICE_BANDS, CATEGORIES, categoriesForRegion, coverFor, regionById,
 } from './config.js';
 import { auth, data, favorites, IS_REAL_LOGIN } from './data-layer.js';
 
@@ -150,7 +150,7 @@ function renderCountryPick() {
 }
 
 function renderCats() {
-  const cats = ['Todos', ...CATEGORIES];
+  const cats = ['Todos', ...categoriesForRegion(state.region)];
   $('cats').innerHTML = cats.map((c) =>
     `<button data-cat="${c}" class="${c === state.category ? 'active' : ''}">${c}</button>`).join('');
   $('cats').querySelectorAll('button').forEach((b) => {
@@ -171,6 +171,8 @@ function currentItems() {
     items = items.filter(isActiveNovelty);
   } else {
     items = items.filter((p) => p.region === state.region);
+    const allowed = categoriesForRegion(state.region);
+    items = items.filter((p) => allowed.includes(p.categoria));
     if (state.country) items = items.filter((p) => (p.ships || []).includes(state.country));
   }
 
@@ -222,7 +224,7 @@ function renderGrid() {
   if (isLanding) {
     empty.style.display = 'none';
     grid.className = 'grid grid-cats';
-    grid.innerHTML = CATEGORIES.map((cat) => `<article class="cat-tile" data-cat="${escapeAttr(cat)}">
+    grid.innerHTML = categoriesForRegion(state.region).map((cat) => `<article class="cat-tile" data-cat="${escapeAttr(cat)}">
         <div class="cat-tile-img"><img src="${coverFor(cat)}" alt="${escapeAttr(cat)}" loading="lazy"></div>
         <div class="cat-tile-name">${cat}</div>
       </article>`).join('');
