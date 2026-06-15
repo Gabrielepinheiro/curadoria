@@ -258,7 +258,12 @@ function renderGrid() {
   }).join('');
 
   grid.querySelectorAll('[data-open]').forEach((el) => {
-    el.onclick = () => { const u = el.dataset.open; if (u && u !== '#') window.open(u, '_blank'); };
+    el.onclick = () => {
+      let u = el.dataset.open;
+      if (!u || u === '#') return;
+      if (!/^https?:\/\//i.test(u)) u = 'https://' + u; // completa o endereço se faltar
+      window.open(u, '_blank', 'noopener');
+    };
   });
   grid.querySelectorAll('[data-fav]').forEach((el) => {
     el.onclick = async (e) => { e.stopPropagation(); await toggleFav(el.dataset.fav); };
