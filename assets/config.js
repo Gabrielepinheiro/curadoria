@@ -15,9 +15,14 @@ export const REGIONS = [
 // Países de entrega disponíveis por região (briefing §6).
 export const COUNTRIES = {
   europa: [
-    'Alemanha', 'Áustria', 'Suíça', 'Portugal', 'Espanha', 'França',
-    'Itália', 'Holanda', 'Bélgica', 'Luxemburgo', 'Reino Unido',
-    'Irlanda', 'Dinamarca', 'Suécia', 'Polônia',
+    'Albânia', 'Alemanha', 'Andorra', 'Áustria', 'Bélgica', 'Bielorrússia',
+    'Bósnia e Herzegovina', 'Bulgária', 'Chipre', 'Croácia', 'Dinamarca',
+    'Eslováquia', 'Eslovênia', 'Espanha', 'Estônia', 'Finlândia', 'França',
+    'Grécia', 'Holanda', 'Hungria', 'Irlanda', 'Islândia', 'Itália', 'Letônia',
+    'Liechtenstein', 'Lituânia', 'Luxemburgo', 'Malta', 'Moldávia', 'Mônaco',
+    'Montenegro', 'Noruega', 'Polônia', 'Portugal', 'Reino Unido',
+    'República Tcheca', 'Romênia', 'Rússia', 'San Marino', 'Sérvia', 'Suécia',
+    'Suíça', 'Ucrânia', 'Vaticano',
   ],
   brasil: ['Brasil'],
 };
