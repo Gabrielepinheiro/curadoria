@@ -20,7 +20,7 @@
 import { STORES_SEED, PRODUCTS_SEED } from './seed.js';
 
 export const CONFIG = {
-  mode: 'seed',                                       // 'seed' | 'wix'
+  mode: 'wix',                                        // 'seed' | 'wix'
   wixClientId: 'b68aa461-9904-4443-b1cc-74d9861f6739',// Client ID do Wix Headless (Curadoria CCI)
 };
 
