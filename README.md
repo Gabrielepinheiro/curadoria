@@ -1,6 +1,6 @@
 # Casa com Identidade — Plataforma de Curadoria (CCI)
 
-Plataforma web privada onde clientes navegam por uma curadoria de mobiliário e
+Plataforma web privada onde clientes navegam por uma curadoria de interiores (móveis e
 decoração selecionada pela arquiteta Gabriele Pinheiro. Cada peça abre na loja
 externa. **Não é e-commerce** — a venda é apenas do *acesso* à curadoria
 (pela Hotmart).
