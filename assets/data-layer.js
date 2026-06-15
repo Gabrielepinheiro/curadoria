@@ -133,12 +133,19 @@ const wixAdapter = (() => {
     if (client) return client;
     const { createClient, OAuthStrategy } = await import('https://esm.sh/@wix/sdk');
     const { items } = await import('https://esm.sh/@wix/data');
+    const { members } = await import('https://esm.sh/@wix/members');
+    const tokens = lread('cci.wixTokens', null) || undefined;
     client = createClient({
-      modules: { items },
-      auth: OAuthStrategy({ clientId: CONFIG.wixClientId }),
+      modules: { items, members },
+      auth: OAuthStrategy({ clientId: CONFIG.wixClientId, tokens }),
     });
     return client;
   }
+
+  // Login real de membros só quando ?login=wix (assim o teste do catálogo
+  // por nome continua funcionando em ?fonte=wix).
+  const REAL_LOGIN = (typeof location !== 'undefined')
+    && new URLSearchParams(location.search).get('login') === 'wix';
 
   // normaliza um item (campos podem vir no topo ou sob .data)
   const F = (it) => {
@@ -163,7 +170,56 @@ const wixAdapter = (() => {
   }
 
   return {
-    auth: {
+    auth: REAL_LOGIN ? {
+      // --- Login real de membros (Wix-managed login, via redirect) ---
+      async currentUser() {
+        const c = await getClient();
+        try {
+          if (typeof location !== 'undefined' && /[?&](code|state|error)=/.test(location.search)) {
+            const returned = await c.auth.parseFromUrl();
+            const oauthData = lread('cci.oauthData', null);
+            if (returned && returned.code && oauthData) {
+              const tokens = await c.auth.getMemberTokens(returned.code, returned.state, oauthData);
+              c.auth.setTokens(tokens);
+              lwrite('cci.wixTokens', tokens);
+              localStorage.removeItem('cci.oauthData');
+            }
+            const p = new URLSearchParams(location.search);
+            ['code', 'state', 'error', 'error_description'].forEach((k) => p.delete(k));
+            history.replaceState({}, '', location.pathname + (p.toString() ? '?' + p : ''));
+          }
+        } catch (e) { console.warn('Wix login (callback):', e); }
+        try {
+          const res = await c.members.getCurrentMember();
+          const m = (res && (res.member || res)) || null;
+          if (m && (m._id || m.id)) {
+            const name = (m.profile && m.profile.nickname)
+              || (m.contact && m.contact.firstName) || m.loginEmail || 'Cliente';
+            const user = { id: m._id || m.id, name };
+            lwrite(LS_USER, user); return user;
+          }
+        } catch (e) { /* não logado ainda */ }
+        return null;
+      },
+      async login() {
+        const c = await getClient();
+        const redirect = location.href; // preserva ?fonte=wix&login=wix ao voltar
+        const oauthData = c.auth.generateOAuthData(redirect, redirect);
+        lwrite('cci.oauthData', oauthData);
+        const { authUrl } = await c.auth.getAuthUrl(oauthData);
+        location.href = authUrl;
+      },
+      async logout() {
+        const c = await getClient();
+        localStorage.removeItem('cci.wixTokens');
+        localStorage.removeItem(LS_USER);
+        try {
+          const { logoutUrl } = await c.auth.logout(location.href);
+          location.href = logoutUrl;
+        } catch { location.reload(); }
+      },
+    } : {
+      // --- Login simples por nome (só para validar o catálogo) ---
       currentUser: () => lread(LS_USER, null),
       login: (name) => {
         const u = { id: 'wix-' + (name || 'cliente').toLowerCase().replace(/\s+/g, '-'), name };
@@ -197,18 +253,22 @@ const wixAdapter = (() => {
     favorites: {
       _uid() { return (lread(LS_USER, {}) || {}).id || 'anon'; },
       async list() {
-        const c = await getClient();
-        const res = await c.items.query('Favoritos').eq('membroId', this._uid()).limit(1000).find();
-        return new Set((res.items || []).map(F).map((f) => refId(f.produtoId)));
+        try {
+          const c = await getClient();
+          const res = await c.items.query('Favoritos').eq('membroId', this._uid()).limit(1000).find();
+          return new Set((res.items || []).map(F).map((f) => refId(f.produtoId)));
+        } catch (e) { console.warn('Favoritos (list):', e); return new Set(); }
       },
       async toggle(productId) {
-        const c = await getClient();
-        const ex = await c.items.query('Favoritos').eq('membroId', this._uid()).eq('produtoId', productId).find();
-        if ((ex.items || []).length) {
-          await c.items.remove('Favoritos', F(ex.items[0])._id);
-        } else {
-          await c.items.insert('Favoritos', { membroId: this._uid(), produtoId: productId });
-        }
+        try {
+          const c = await getClient();
+          const ex = await c.items.query('Favoritos').eq('membroId', this._uid()).eq('produtoId', productId).find();
+          if ((ex.items || []).length) {
+            await c.items.remove('Favoritos', F(ex.items[0])._id);
+          } else {
+            await c.items.insert('Favoritos', { membroId: this._uid(), produtoId: productId });
+          }
+        } catch (e) { console.warn('Favoritos (toggle):', e); }
         return this.list();
       },
     },
@@ -219,9 +279,11 @@ const wixAdapter = (() => {
 // Modo padrão = CONFIG.mode (hoje 'seed', preview aprovado intacto).
 // Para TESTAR a conexão real com o Wix sem mexer no padrão, acesse com
 // ?fonte=wix no fim do endereço. ?fonte=seed força o modo exemplo.
-const _urlMode = (typeof location !== 'undefined')
-  ? new URLSearchParams(location.search).get('fonte') : null;
+const _params = (typeof location !== 'undefined') ? new URLSearchParams(location.search) : new URLSearchParams();
+const _urlMode = _params.get('fonte');
 const MODE = (_urlMode === 'wix' || _urlMode === 'seed') ? _urlMode : CONFIG.mode;
+// true quando o login real de membros está ativo (?fonte=wix&login=wix)
+export const IS_REAL_LOGIN = MODE === 'wix' && _params.get('login') === 'wix';
 const active = MODE === 'wix' ? wixAdapter : seedAdapter;
 
 // Normaliza tudo para Promise, para a tela poder usar await

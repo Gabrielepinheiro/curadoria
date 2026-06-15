@@ -5,7 +5,7 @@
 import {
   REGIONS, COUNTRIES, PRICE_BANDS, CATEGORIES, coverFor, regionById,
 } from './config.js';
-import { auth, data, favorites } from './data-layer.js';
+import { auth, data, favorites, IS_REAL_LOGIN } from './data-layer.js';
 
 // ---------- estado ----------
 const state = {
@@ -48,6 +48,7 @@ const LEGAL_TEXT = `
 //  LOGIN
 // =============================================================
 async function doLogin() {
+  if (IS_REAL_LOGIN) { await auth.login(); return; } // redireciona para o login seguro do Wix
   const name = $('accessName').value.trim();
   if (!name) { $('loginError').textContent = 'Digite seu nome para entrar.'; return; }
   state.user = await auth.login(name);
@@ -457,6 +458,11 @@ async function init() {
   // No preview, acesse com ?admin=1 no fim do endereço. No Wix, virá da permissão real.
   const isAdmin = new URLSearchParams(location.search).get('admin') === '1';
   if (isAdmin) $('adminBtn').style.display = '';
+  // Login real do Wix: a tela de entrada não pede nome (redireciona para o Wix).
+  if (IS_REAL_LOGIN) {
+    if ($('accessName')) $('accessName').style.display = 'none';
+    if ($('loginHint')) $('loginHint').textContent = 'Você será direcionado para o login seguro do Wix.';
+  }
   state.user = await auth.currentUser();
   if (state.user) {
     $('loginScreen').style.display = 'none';
