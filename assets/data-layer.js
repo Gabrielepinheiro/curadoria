@@ -20,8 +20,8 @@
 import { STORES_SEED, PRODUCTS_SEED } from './seed.js';
 
 export const CONFIG = {
-  mode: 'seed',          // 'seed' | 'wix'
-  wixClientId: '',       // preencher ao ligar o Wix Headless
+  mode: 'seed',                                       // 'seed' | 'wix'
+  wixClientId: 'b68aa461-9904-4443-b1cc-74d9861f6739',// Client ID do Wix Headless (Curadoria CCI)
 };
 
 // ---------------------------------------------------------------
@@ -117,90 +117,94 @@ const seedAdapter = (() => {
 })();
 
 /* ============================ WIX ============================ */
-//  Esqueleto pronto para ligar no Wix Headless. Usa o SDK oficial
-//  do Wix via ESM (sem build/empacotador). Mantido inativo até
-//  CONFIG.mode === 'wix'. As coleções do Wix CMS estão definidas
-//  em docs/wix-cms-schema.md.
+//  Conexão com o Wix Headless via SDK oficial (ESM, sem build).
+//  Lê as coleções Lojas/Produtos/Favoritos do Wix CMS.
+//  Login: por enquanto é simples (nome), só para validarmos o catálogo
+//  real. O login de MEMBROS de verdade (e a integração Hotmart) entram
+//  na Fase 2. Mapeamento é defensivo porque o formato exato dos itens
+//  pode variar (campos no topo ou sob .data; referência como id ou objeto).
 const wixAdapter = (() => {
   let client = null;
-  let _user = null;
+  const LS_USER = 'cci.user';
+  const lread = (k, f) => { try { return JSON.parse(localStorage.getItem(k)) ?? f; } catch { return f; } };
+  const lwrite = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
   async function getClient() {
     if (client) return client;
     const { createClient, OAuthStrategy } = await import('https://esm.sh/@wix/sdk');
-    const { items }    = await import('https://esm.sh/@wix/data');
-    const { members }  = await import('https://esm.sh/@wix/members');
-    const { authentication } = await import('https://esm.sh/@wix/members');
+    const { items } = await import('https://esm.sh/@wix/data');
     client = createClient({
-      modules: { items, members, authentication },
+      modules: { items },
       auth: OAuthStrategy({ clientId: CONFIG.wixClientId }),
     });
     return client;
   }
 
-  const storesById = async () => {
-    const c = await getClient();
-    const res = await c.items.query('Lojas').limit(1000).find();
-    return Object.fromEntries(res.items.map((s) => [s._id, s]));
+  // normaliza um item (campos podem vir no topo ou sob .data)
+  const F = (it) => {
+    const d = (it && it.data) ? it.data : (it || {});
+    return { ...d, _id: (it && it._id) || d._id };
   };
+  const refId = (v) => (v && typeof v === 'object') ? (v._id || v.id) : v;
+  const imgUrl = (v) => {
+    if (!v) return '';
+    if (typeof v === 'string') return v.startsWith('wix:image://') ? '' : v;
+    return v.url || v.src || '';
+  };
+  const dateStr = (v) => { if (!v) return ''; try { return new Date(v).toISOString().slice(0, 10); } catch { return String(v); } };
+
+  async function queryAll(collectionId) {
+    const c = await getClient();
+    const res = await c.items.query(collectionId).limit(1000).find();
+    return (res.items || []).map(F);
+  }
 
   return {
     auth: {
-      currentUser: () => _user,
-      async login() {
-        const c = await getClient();
-        // Fluxo de login da Área de Membros do Wix (redirect/managed).
-        const data = c.authentication.generateOAuthData(window.location.href);
-        const { authUrl } = await c.authentication.getAuthUrl(data);
-        window.location.href = authUrl;
+      currentUser: () => lread(LS_USER, null),
+      login: (name) => {
+        const u = { id: 'wix-' + (name || 'cliente').toLowerCase().replace(/\s+/g, '-'), name };
+        lwrite(LS_USER, u); return u;
       },
-      async logout() {
-        const c = await getClient();
-        const { logoutUrl } = await c.authentication.logout(window.location.href);
-        _user = null;
-        window.location.href = logoutUrl;
-      },
+      logout: () => localStorage.removeItem(LS_USER),
     },
     data: {
       async listStores() {
-        const c = await getClient();
-        const res = await c.items.query('Lojas').limit(1000).find();
-        return res.items;
+        return (await queryAll('Lojas')).map((s) => ({
+          id: s._id, name: s.nome, site: s.site, region: s.regiao, ships: s.entregaEm || [],
+        }));
       },
-      async createStore(store) {
-        const c = await getClient();
-        const res = await c.items.insert('Lojas', store);
-        return res;
-      },
+      async createStore() { throw new Error('No modo Wix, cadastre lojas pelo CMS do Wix.'); },
       async listProducts() {
-        const c = await getClient();
-        const map = await storesById();
-        const res = await c.items.query('Produtos').limit(1000).find();
-        return res.items.map((p) => {
-          const loja = map[p.lojaId] || {};
-          return { ...p, region: loja.regiao, ships: loja.entregaEm || [], storeName: loja.nome };
+        const stores = Object.fromEntries((await queryAll('Lojas')).map((s) => [s._id, s]));
+        const prods = await queryAll('Produtos');
+        return prods.map((p) => {
+          const loja = stores[refId(p.lojaId)] || {};
+          return {
+            id: p._id, nome: p.nome, referencia: p.referencia, link: p.link || '#',
+            imagem: imgUrl(p.imagem), categoria: p.categoria,
+            faixaPreco: Number(p.faixaPreco) || 1,
+            novidade: !!p.novidade, novidadeAte: dateStr(p.novidadeAte),
+            region: loja.regiao, ships: loja.entregaEm || [], storeName: loja.nome,
+          };
         });
       },
-      async createProduct(prod) {
-        const c = await getClient();
-        return c.items.insert('Produtos', prod);
-      },
+      async createProduct() { throw new Error('No modo Wix, cadastre produtos pelo CMS do Wix.'); },
     },
     favorites: {
+      _uid() { return (lread(LS_USER, {}) || {}).id || 'anon'; },
       async list() {
         const c = await getClient();
-        const res = await c.items.query('Favoritos')
-          .eq('membroId', _user?.id).limit(1000).find();
-        return new Set(res.items.map((f) => f.produtoId));
+        const res = await c.items.query('Favoritos').eq('membroId', this._uid()).limit(1000).find();
+        return new Set((res.items || []).map(F).map((f) => refId(f.produtoId)));
       },
       async toggle(productId) {
         const c = await getClient();
-        const existing = await c.items.query('Favoritos')
-          .eq('membroId', _user?.id).eq('produtoId', productId).find();
-        if (existing.items.length) {
-          await c.items.remove('Favoritos', existing.items[0]._id);
+        const ex = await c.items.query('Favoritos').eq('membroId', this._uid()).eq('produtoId', productId).find();
+        if ((ex.items || []).length) {
+          await c.items.remove('Favoritos', F(ex.items[0])._id);
         } else {
-          await c.items.insert('Favoritos', { membroId: _user?.id, produtoId: productId });
+          await c.items.insert('Favoritos', { membroId: this._uid(), produtoId: productId });
         }
         return this.list();
       },
@@ -209,7 +213,13 @@ const wixAdapter = (() => {
 })();
 
 /* ===================== seletor de modo ===================== */
-const active = CONFIG.mode === 'wix' ? wixAdapter : seedAdapter;
+// Modo padrão = CONFIG.mode (hoje 'seed', preview aprovado intacto).
+// Para TESTAR a conexão real com o Wix sem mexer no padrão, acesse com
+// ?fonte=wix no fim do endereço. ?fonte=seed força o modo exemplo.
+const _urlMode = (typeof location !== 'undefined')
+  ? new URLSearchParams(location.search).get('fonte') : null;
+const MODE = (_urlMode === 'wix' || _urlMode === 'seed') ? _urlMode : CONFIG.mode;
+const active = MODE === 'wix' ? wixAdapter : seedAdapter;
 
 // Normaliza tudo para Promise, para a tela poder usar await
 // independentemente do modo (seed é síncrono, wix é assíncrono).
