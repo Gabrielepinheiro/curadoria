@@ -20,17 +20,18 @@ https://loja.com/mesa-pampa
 
 ```bash
 python3 ferramentas/montar_pdf.py lista.txt
-python3 ferramentas/montar_pdf.py lista.txt --titulo "Curadoria Europa" --sem-valor
+python3 ferramentas/montar_pdf.py lista.txt --titulo "Curadoria Europa" --com-valor
 ```
 
 Sai em `capturas/<data>/`:
-- **curadoria.pdf**: A4 horizontal, fundo branco, capa, sumário clicável e
-  8 produtos por página. Cada produto é clicável e abre a loja;
+- **curadoria.pdf**: A4 vertical (bom de ler no celular), fundo branco, capa,
+  sumário clicável e 6 produtos por página. Cada produto é clicável e abre a loja;
 - **curadoria.html**: a mesma coisa, para ajustes;
 - **conferir.txt**: o que faltou capturar.
 
-Por padrão, o card mostra a faixa (€€) e o valor aproximado (≈ € 199). Com
-`--sem-valor`, mostra só a faixa. Fontes: Cormorant Garamond e Jost, que vão
+Por padrão, o card mostra só a faixa: € até 100 · €€ 100–400 · €€€ 400–600 ·
+€€€€ 600–800 · €€€€€ acima de 800 (ajustável em `FAIXAS`, no `capturar.py`).
+Com `--com-valor`, mostra também o valor aproximado (≈ € 199). Fontes: Cormorant Garamond e Jost, que vão
 embutidas no arquivo (`fontes/`). Requisitos: Python 3, Node com Playwright
 (Chromium) e, opcionalmente, o Pillow, para deixar o PDF leve.
 

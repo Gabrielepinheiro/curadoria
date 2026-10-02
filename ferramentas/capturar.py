@@ -42,7 +42,7 @@ UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
 # Faixas de preço — espelho de PRICE_BANDS em assets/config.js.
 # Limite SUPERIOR de cada faixa 1..4 (acima do último = faixa 5).
 FAIXAS = {
-    'europa': [150, 400, 700, 1000],
+    'europa': [100, 400, 600, 800],
     'brasil': [800, 2000, 4000, 6000],
 }
 SIMBOLO = {'europa': '€', 'brasil': 'R$'}

@@ -16,7 +16,7 @@
 #    detalhe, preco (ex.: 1290), faixa (1 a 5), foto (link da imagem).
 #    O que você escrever aqui vale mais que o capturado.
 #
-#  Gera, na pasta de saída: curadoria.pdf (A4 horizontal, 8 por
+#  Gera, na pasta de saída: curadoria.pdf (A4 vertical, 6 por
 #  página), curadoria.html e conferir.txt (o que faltou capturar).
 #
 #  USO:
@@ -39,7 +39,7 @@ from concurrent.futures import ThreadPoolExecutor
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import capturar as cap  # noqa: E402
 
-POR_PAGINA = 8
+POR_PAGINA = 6
 SIMB = {'europa': '€', 'brasil': 'R$'}
 MOEDA = {'EUR': '€', 'BRL': 'R$', 'GBP': '£', 'USD': '$', 'CHF': 'CHF'}
 
@@ -174,44 +174,44 @@ def fontes_embutidas():
 
 
 CSS = """
-@page { size: A4 landscape; margin: 0; }
+@page { size: A4 portrait; margin: 0; }
 :root { --tinta:#2B2723; --suave:#8C8379; --linha:#DCD5CB; --bronze:#9A7B4F; }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: #fff; color: var(--tinta); }
 body { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.pagina { width: 297mm; height: 210mm; padding: 13mm 18mm 11mm; position: relative;
+.pagina { width: 210mm; height: 297mm; padding: 14mm 16mm 12mm; position: relative;
   display: flex; flex-direction: column; page-break-after: always; break-after: page; overflow: hidden; background:#fff; }
 .pagina:last-child { page-break-after: auto; break-after: auto; }
-.topo, .rodape { display: flex; justify-content: space-between; font-size: 6.6pt;
+.topo, .rodape { display: flex; justify-content: space-between; font-size: 7pt;
   letter-spacing: .22em; text-transform: uppercase; color: var(--suave); }
 .topo { padding-bottom: 2.6mm; border-bottom: .25mm solid var(--linha); }
 .rodape { margin-top: auto; padding-top: 2.6mm; border-top: .25mm solid var(--linha); }
-h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 25pt;
-  letter-spacing: .01em; text-align: center; margin: 6mm 0 5mm; }
-.grade { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 5mm 6mm; flex: 1; min-height: 0; margin-bottom: 5mm; }
+h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 30pt;
+  letter-spacing: .01em; text-align: center; margin: 8mm 0 7mm; }
+.grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 6mm 7mm; flex: 1; min-height: 0; margin-bottom: 5mm; }
 .card { border: .25mm solid var(--linha); display: flex; flex-direction: column; min-height: 0;
   text-decoration: none; color: inherit; }
 .foto { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
-  padding: 4mm 5mm; border-bottom: .25mm solid var(--linha); }
+  padding: 5mm 8mm; border-bottom: .25mm solid var(--linha); }
 .foto img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .foto .vazio { font-size: 7pt; letter-spacing: .2em; color: var(--suave); text-transform: uppercase; }
-.legenda { padding: 2.4mm 3mm 2.8mm; text-align: center; }
+.legenda { padding: 3mm 4mm 3.4mm; text-align: center; }
 .nome { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500;
-  font-size: 12.5pt; line-height: 1.1; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.loja { font-size: 6.2pt; letter-spacing: .2em; text-transform: uppercase; margin: 1.1mm 0 0; }
-.meta { font-size: 6.4pt; letter-spacing: .08em; color: var(--suave); margin: 1mm 0 0; }
+  font-size: 15pt; line-height: 1.1; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loja { font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; margin: 1.1mm 0 0; }
+.meta { font-size: 7.4pt; letter-spacing: .08em; color: var(--suave); margin: 1mm 0 0; }
 .meta b { color: var(--bronze); font-weight: 500; letter-spacing: .12em; }
 /* capa e sumário */
 .capa { justify-content: center; align-items: center; text-align: center; }
 .capa .sobre { font-size: 7.5pt; letter-spacing: .4em; text-transform: uppercase; color: var(--suave); }
-.capa h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: 46pt;
+.capa h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: 44pt;
   margin: 7mm 0 4mm; letter-spacing: .01em; }
 .capa .fio { width: 22mm; height: .3mm; background: var(--bronze); margin: 2mm auto 6mm; }
 .capa .sub { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 14pt; color: var(--suave); }
 .capa .assina { position: absolute; bottom: 14mm; left: 0; right: 0; font-size: 7pt;
   letter-spacing: .32em; text-transform: uppercase; color: var(--suave); }
-.sumario { columns: 2; column-gap: 18mm; width: 190mm; margin: 4mm auto 0; }
+.sumario { width: 130mm; margin: 4mm auto 0; }
 .sumario a { display: flex; align-items: baseline; gap: 3mm; text-decoration: none; color: inherit;
   padding: 2.2mm 0; border-bottom: .25mm solid var(--linha); break-inside: avoid;
   font-family: 'Cormorant Garamond', Georgia, serif; font-size: 13.5pt; }
@@ -298,7 +298,7 @@ def main():
     ap.add_argument('--titulo', default='Curadoria de Interiores')
     ap.add_argument('--subtitulo', default='Peças escolhidas uma a uma')
     ap.add_argument('--assinatura', default='Gabriele Pinheiro')
-    ap.add_argument('--sem-valor', action='store_true', help='mostra só a faixa (€€), sem o valor aproximado')
+    ap.add_argument('--com-valor', action='store_true', help='além da faixa (€€), mostra o valor aproximado')
     ap.add_argument('--saida', default=None)
     a = ap.parse_args()
 
@@ -327,7 +327,7 @@ def main():
             if r['conferir']:
                 avisos.append(f"[{s['titulo']}] {r['link']}\n    falta: {', '.join(r['conferir'])}")
 
-    pagina = montar_html(secoes, a.titulo, a.subtitulo, a.assinatura, not a.sem_valor)
+    pagina = montar_html(secoes, a.titulo, a.subtitulo, a.assinatura, a.com_valor)
     arq_html = os.path.join(saida, 'curadoria.html')
     with open(arq_html, 'w', encoding='utf-8') as f:
         f.write(pagina)
