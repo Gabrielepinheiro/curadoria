@@ -44,6 +44,9 @@ https://loja.com/peca-x | categoria: Mesa lateral
   aparecem no plural (`PLURAL` em `montar_pdf.py`).
 - Desenho técnico (linhas escuras em fundo branco) nunca é usado como foto.
 - **Medidas** só aparecem na página Espelho (`COM_MEDIDAS` em `montar_pdf.py`).
+- **Lojas que bloqueiam** (Maisons du Monde, home24, H&M): complete com
+  `| foto: … | preco: …`. A foto pode ser o link da imagem (o servidor de fotos
+  costuma abrir) ou um arquivo salvo em `curadoria/fotos/`.
 - Outros campos opcionais depois de `|`: `nome`, `loja`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você
   escrever vale mais que o capturado.

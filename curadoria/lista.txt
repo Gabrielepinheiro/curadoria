@@ -149,3 +149,4 @@ https://www.ikea.com/de/de/p/skogsduva-kissen-blumenfoermig-weiss-80576786/ | ca
 https://www.maisonsdumonde.com/DE/de/p/buffet-3-portes-decor-noyer-et-facades-tissu-l140-cm-jetson-M25087920.htm | preco: 269
 https://www.maisonsdumonde.com/DE/de/p/buffet-en-bois-recycle-18-tiroirs-miramas-M21036927.htm | preco: 939
 https://www.home24.de/produkt/esszimmerstuhl-flomaton-buche-4er-set | categoria: Cadeira | nome: Flomaton
+https://www.home24.de/produkt/esstisch-olson-gummibaum-teilmassiv-walnuss | nome: Olson | foto: curadoria/fotos/olson-home24.webp | preco: 369 | categoria: Mesa de jantar

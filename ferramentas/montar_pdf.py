@@ -338,6 +338,10 @@ _sessao, _trava = None, threading.Lock()
 
 
 def _baixar_bytes(url):
+    if not re.match(r'https?://', url):  # foto salva no repositório (ex.: curadoria/fotos/x.webp)
+        raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with open(url if os.path.isabs(url) else os.path.join(raiz, url), 'rb') as f:
+            return f.read()
     req = urllib.request.Request(url, headers={'User-Agent': cap.UA, 'Accept': 'image/avif,image/webp,image/*,*/*;q=0.8'})
     with urllib.request.urlopen(req, timeout=30) as r:
         return r.read()
@@ -589,6 +593,8 @@ def preparar(item, lojas, secao=''):
     r['detalhe'] = x.get('detalhe', '')
     if x.get('foto'):
         r['candidatas'] = [x['foto']]
+        if x.get('preco'):  # loja bloqueada, mas você completou foto e preço: nada a conferir
+            r['conferir'] = [c for c in r['conferir'] if not c.startswith('não abriu') and c != 'sem preço']
     try:
         r['img64'] = foto_produto(r)
     except Exception:
