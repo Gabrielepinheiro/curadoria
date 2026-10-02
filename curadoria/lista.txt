@@ -145,3 +145,4 @@ https://www.ikea.com/de/de/p/barndroem-kissen-gelb-taxifoermig-70622878/ | categ
 https://www.ikea.com/de/de/p/skogsduva-kissen-mit-tasche-eichelfoermig-braun-20576770/ | categoria: Infantil
 https://www.ikea.com/de/de/p/brummig-teppich-igelfoermig-braun-50521187/ | categoria: Infantil
 https://www.ikea.com/de/de/p/alptall-kissen-rosa-blumenfoermig-00625173/ | categoria: Infantil
+https://www.ikea.com/de/de/p/skogsduva-kissen-blumenfoermig-weiss-80576786/ | categoria: Infantil

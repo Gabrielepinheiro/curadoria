@@ -716,6 +716,63 @@ def card(r, mostrar_valor):
             + '</div></a>')
 
 
+WEB_CSS = """
+/* Layout: catálogo em coluna, índice de categorias no topo, cards 2-4 por linha */
+:root { --papel:#FFFFFF; --tinta:#2B2723; --suave:#857C72; --linha:#E2DBD1; --bronze:#94744A; --chip:#F6F2EC;
+  --display:'EB Garamond', Georgia, serif; --nome:'Cormorant Garamond', Georgia, serif; --util:'Jost', 'Helvetica Neue', Arial, sans-serif; }
+body { background: var(--papel); color: var(--tinta); font-family: var(--util); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 56px; }
+.topo { text-align: center; padding-block: 12px 20px; border-bottom: 1px solid var(--linha); }
+.topo .sobre { font-size: 11px; letter-spacing: .32em; text-transform: uppercase; color: var(--suave); margin: 0; }
+.topo h1 { font-family: var(--display); font-weight: 400; font-size: clamp(30px, 7vw, 46px); margin: 10px 0 6px; text-wrap: balance; }
+.topo .conta { font-size: 12px; letter-spacing: .12em; color: var(--suave); margin: 0; font-variant-numeric: tabular-nums; }
+nav.indice { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding-block: 18px; }
+nav.indice a { font-size: 12px; letter-spacing: .04em; color: var(--tinta); text-decoration: none; background: var(--chip);
+  border: 1px solid var(--linha); border-radius: 999px; padding: 6px 12px; }
+nav.indice a:focus-visible, .card:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+section.cat { padding-block: 28px 8px; scroll-margin-top: 12px; }
+.cat .grupo { text-align: center; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bronze); margin: 0 0 4px; }
+.cat h2 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 6vw, 34px); text-align: center; margin: 0 0 18px; }
+.grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.card { display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--linha); color: inherit; text-decoration: none; background: var(--papel); }
+.card .foto { aspect-ratio: 4 / 3; max-width: 100%; display: flex; align-items: center; justify-content: center; padding: 10px;
+  border-bottom: 1px solid var(--linha); overflow: hidden; }
+.card .foto img { width: 100%; height: 100%; object-fit: contain; }
+.card .legenda { margin-top: auto; }
+.card .legenda { padding: 10px 8px 12px; text-align: center; }
+.card .nome { font-family: var(--nome); font-style: italic; font-weight: 500; font-size: 18px; line-height: 1.15; margin: 0; text-wrap: balance; }
+.card .loja { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; margin: 6px 0 0; }
+.card .meta { font-size: 11px; color: var(--suave); margin: 4px 0 0; }
+.card .meta b { color: var(--bronze); font-weight: 500; letter-spacing: .1em; }
+.vazio { font-size: 11px; color: var(--suave); }
+@media (min-width: 720px) { .grade { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+"""
+
+
+def montar_web(secoes, titulo, assinatura, mostrar_valor):
+    """Prévia para ver no celular: mesmo conteúdo do PDF, em coluna responsiva."""
+    e = html.escape
+    total = sum(len(s['prod']) for s in secoes)
+    indice, blocos = [], []
+    for i, s in enumerate(secoes, 1):
+        t = s['titulo']
+        grupo, nome = (t.split(' · ', 1) if ' · ' in t else ('', t))
+        ancora = f'c{i}'
+        indice.append(f'<a href="#{ancora}">{e((grupo + " — " if grupo else "") + nome)}</a>')
+        cards = ''.join(card(r, mostrar_valor) for r in s['prod'])
+        blocos.append(f'<section class="cat" id="{ancora}">'
+                      + (f'<p class="grupo">{e(grupo)}</p>' if grupo else '')
+                      + f'<h2>{e(nome)}</h2><div class="grade">{cards}</div></section>')
+    return (f'<title>{e(titulo)}</title>\n'
+            '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+            '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500'
+            '&family=EB+Garamond&family=Jost:wght@400;500&display=swap" rel="stylesheet">\n'
+            f'<style>{WEB_CSS}</style>\n'
+            f'<div class="wrap"><header class="topo"><p class="sobre">{e(assinatura)}</p>'
+            f'<h1>{e(titulo)}</h1><p class="conta">{total} peças · {len(secoes)} categorias</p></header>'
+            f'<nav class="indice">{"".join(indice)}</nav>{"".join(blocos)}</div>')
+
+
 def titulo_pagina(t):
     """'Decoração · Cestos' -> 'Cestos' com 'Decoração' pequeno em cima."""
     e = html.escape
@@ -836,6 +893,8 @@ def main():
                 avisos.append(f"[{s['titulo']}] {r['link']}\n    falta: {', '.join(r['conferir'])}")
 
     pagina = montar_html(secoes, a.titulo, a.subtitulo, a.assinatura, a.com_valor)
+    with open(os.path.join(saida, 'previa-web.html'), 'w', encoding='utf-8') as f:
+        f.write(montar_web(secoes, a.titulo, a.assinatura, a.com_valor))
     arq_html = os.path.join(saida, 'curadoria.html')
     with open(arq_html, 'w', encoding='utf-8') as f:
         f.write(pagina)
