@@ -32,8 +32,12 @@ https://loja.com/peca-x | categoria: Mesa lateral
   Idekulla beige", "Fågelfjället · 4 gavetas marfim"), com cores e acabamentos
   traduzidos (`traducoes.json`). Sklum: cada cor (`?id_c=`) traz a própria
   foto e o próprio preço. Medidas não aparecem no PDF.
-- Fotos: a margem branca é cortada. Fotos verticais (de ambiente ou estúdio)
-  são enquadradas na horizontal, centralizadas no móvel.
+- **Fotos: só o produto, sempre em fundo branco.** Entre as fotos da ficha,
+  o programa escolhe a primeira que mostra só o móvel, inteiro (pula
+  ambiente e detalhe). Fundo quase branco é clareado. Fundo cinza de estúdio
+  é recortado com o `rembg` (`pip install "rembg[cpu]"`). As fotos tratadas
+  ficam guardadas em `capturas/.fotos`, para não refazer a cada lote.
+- **Medidas** só aparecem na página Espelho (`COM_MEDIDAS` em `montar_pdf.py`).
 - Outros campos opcionais depois de `|`: `nome`, `loja`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você
   escrever vale mais que o capturado.

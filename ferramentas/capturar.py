@@ -29,6 +29,7 @@ import os
 import re
 import sys
 import unicodedata
+import urllib.error
 import urllib.request
 import zlib
 from html.parser import HTMLParser
@@ -50,6 +51,13 @@ SIMBOLO = {'europa': '€', 'brasil': 'R$'}
 # Categoria sugerida por palavras no nome/link (pt, es, fr, de, it, en).
 # A ordem importa: o primeiro que bater vence (mais específico antes).
 CATEGORIAS = [
+    # Infantil e Depósito antes de tudo: "cama infantil" vai para Infantil, "estante de depósito" para Depósito
+    ('Infantil', ['infantil', 'quarto infantil', 'bebe', 'berco', 'kinder', 'kinderzimmer', 'kinderbett', 'kinderstuhl',
+                  'kindertisch', 'baby', 'babybett', 'kids', 'children', 'childrens', 'enfant', 'bebe', 'infantil', 'bambini',
+                  'bambino', 'cuna', 'nino', 'ninos']),
+    ('Depósito', ['deposito', 'despensa', 'keller', 'kellerregal', 'schwerlastregal', 'lagerregal', 'steckregal',
+                  'werkstattregal', 'garagenregal', 'vorratsregal', 'storage rack', 'utility shelf', 'garage shelving',
+                  'estante de aco', 'estante de aço', 'cave', 'trastero']),
     # Iluminação por tipo — antes de tudo, para "luminária de mesa" não virar mesa
     ('Luminária de piso', ['luminaria de piso', 'luminaria de chao', 'candeeiro de pe', 'candeeiro de chao', 'abajur de chao',
                            'stehleuchte', 'stehlampe', 'lampadaire', 'lampara de pie', 'lampada da terra', 'floor lamp', 'standing lamp']),
@@ -78,7 +86,7 @@ CATEGORIAS = [
                      'glasschiebetueren', 'portas de vidro', 'porta de vidro', 'display cabinet', 'china cabinet', 'credenza vetrina']),
     ('Aparador & Buffet', ['aparador', 'schrankkombination', 'schiebeturenschrank', 'schiebetuerenschrank', 'aufbewahrung', 'konsolentisch', 'mesa consola', 'console table', 'schrank', 'armario baixo', 'mueble bajo', 'buffet', 'bufete', 'consola', 'console', 'sideboard', 'kommode sideboard', 'credenza', 'enfilade', 'anrichte']),
     ('Banco & Banqueta', ['banqueta', 'banquinho', 'banco', 'taburete', 'tabouret', 'banc ', 'hocker', 'sitzbank', 'sgabello', 'panca', 'stool', 'bench']),
-    ('Poltrona', ['poltrona', 'butaca', 'sillon', 'fauteuil', 'sessel', 'armchair', 'lounge chair']),
+    ('Poltrona', ['drehsessel', 'schaukelsessel', 'ohrensessel', 'loungesessel', 'poltrona', 'butaca', 'sillon', 'fauteuil', 'sessel', 'armchair', 'lounge chair']),
     ('Sofá', ['sofa', 'canape', 'divano', 'couch', 'chaise longue', 'chaiselongue', 'modulsofa', 'ecksofa',
               'polstersofa', 'sitzer sofa', 'modulares sofa', 'sofa modular', 'sectional']),
     ('Cadeira', ['cadeira', 'silla', 'chaise', 'stuhl', 'sedia', 'chair']),
@@ -111,7 +119,21 @@ def limpa(s):
     return re.sub(r'\s+', ' ', html.unescape(str(s or ''))).strip()
 
 
-def baixar(url, timeout=25):
+def baixar(url, timeout=25, tentativas=3):
+    """Baixa a página; tenta de novo se a conexão cair no meio."""
+    import time
+    for n in range(tentativas):
+        try:
+            return _baixar(url, timeout)
+        except urllib.error.HTTPError:
+            raise
+        except Exception:
+            if n == tentativas - 1:
+                raise
+            time.sleep(1.5 * (n + 1))
+
+
+def _baixar(url, timeout=25):
     req = urllib.request.Request(url, headers={
         'User-Agent': UA,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -362,10 +384,24 @@ def variante_sklum(pagina, url, r):
         cor = re.sub(r'^\S*(farbe|color|colour|cor)\S*\s+', '', cor, flags=re.I).strip()
         if cor and r['nome']:
             r['nome'] = f"{r['nome']} - {cor}"
-    # iM = foto principal da cor (a que a loja mostra primeiro)
-    foto = re.search(r'"iM":(\d+)', bloco)
-    if foto and r['imagem']:
-        r['imagem'] = re.sub(r'/\d+/([^/]+)$', '/' + foto.group(1) + r'/\1', r['imagem'])
+    # fotos da cor: iMH (estúdio) e a galeria iG primeiro; iM (ambiente) por último.
+    # Quem monta o PDF escolhe a 1ª que for só o móvel, inteiro.
+    if r['imagem']:
+        ids = []
+        m1 = re.search(r'"iMH":(\d+)', bloco)
+        galeria = re.search(r'"iG":\[([^\]]*)\]', bloco)
+        principal = re.search(r'"iM":(\d+)', bloco)
+        if m1:
+            ids.append(m1.group(1))
+        if galeria:
+            ids += re.findall(r'\d+', galeria.group(1))
+        if principal:
+            ids = [i for i in ids if i != principal.group(1)] + [principal.group(1)]
+        ids = list(dict.fromkeys(ids))
+        url_de = lambda i: re.sub(r'/\d+/([^/]+)$', '/' + i + r'/\1', r['imagem'])
+        if ids:
+            r['candidatas'] = [url_de(i) for i in ids]
+            r['imagem'] = r['candidatas'][-1]
 
 
 # -------------------------------------------------------- captura
@@ -413,6 +449,12 @@ def capturar(url, lojas):
     if not r['preco'] and numero(p.itemprop.get('price')):
         r['preco'] = numero(p.itemprop.get('price'))
         r['moeda'] = p.itemprop.get('priceCurrency', '')
+    # todas as fotos da ficha: quem monta o PDF escolhe a 1ª que for só o produto
+    if prod and isinstance(prod.get('image'), list):
+        fotos = [urljoin(final, primeira_img(x).strip()) for x in prod['image'] if primeira_img(x)]
+        fotos = list(dict.fromkeys(f for f in fotos if f))
+        if len(fotos) > 1:
+            r['candidatas'] = fotos[:8]
     variante_sklum(pagina, url, r)
     if r['imagem']:
         r['imagem'] = urljoin(final, r['imagem'].strip())

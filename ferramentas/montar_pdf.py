@@ -35,6 +35,7 @@ import os
 import re
 import subprocess
 import sys
+import threading
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
@@ -50,7 +51,10 @@ ORDEM = [
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
+    'Infantil', 'Depósito',
 ]
+# Páginas em que as medidas aparecem no card (nas outras, não).
+COM_MEDIDAS = {'Espelho'}
 OUTROS = 'Outros'
 SIMB = {'europa': '€', 'brasil': 'R$'}
 MOEDA = {'EUR': '€', 'BRL': 'R$', 'GBP': '£', 'USD': '$', 'CHF': 'CHF'}
@@ -119,9 +123,12 @@ def tamanho(nome):
 
 
 def medidas_do_nome(nome):
-    """'... 160x200 cm' -> '160 × 200 cm'"""
+    """'... 160x200 cm' -> '160 × 200 cm'; '... 50 cm' (redondo) -> 'Ø 50 cm'"""
     m = MEDIDA.search(nome or '')
-    return ' × '.join(g for g in m.groups() if g) + ' cm' if m else ''
+    if m:
+        return ' × '.join(g for g in m.groups() if g) + ' cm'
+    m = re.search(r'(?:Ø|ø|⌀)?\s*(\d+(?:[.,]\d+)?)\s*cm\b', nome or '')
+    return f'Ø {m.group(1)} cm' if m else ''
 
 
 def variacao(nome):
@@ -173,6 +180,7 @@ def diferencas(nomes):
     os outros não têm (sem medidas): o que distingue a variação."""
     def palavras(n):
         n = MEDIDA.sub('', n or '')
+        n = re.sub(r'(?:Ø|ø|⌀)?\s*\d+(?:[.,]\d+)?\s*cm\b', '', n)
         return [w for w in re.split(r'[\s/,()]+|\s[-–—]\s', n) if w and w not in '-–—']
     listas = [palavras(n) for n in nomes]
     comuns = set.intersection(*[set(cap.sem_acento(w) for w in l) for l in listas]) if listas else set()
@@ -297,6 +305,161 @@ def reduzir(dados, tipo, lado=900):
         return dados, tipo
 
 
+# ------------------------------------------------- fotos: só o móvel, fundo branco
+PASTA_FOTOS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'capturas', '.fotos')
+VERSAO_FOTOS = '5'  # mude para refazer todas as fotos
+_sessao, _trava = None, threading.Lock()
+
+
+def _baixar_bytes(url):
+    req = urllib.request.Request(url, headers={'User-Agent': cap.UA, 'Accept': 'image/avif,image/webp,image/*,*/*;q=0.8'})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return r.read()
+
+
+def _abrir(dados):
+    from io import BytesIO
+    from PIL import Image
+    im = Image.open(BytesIO(dados))
+    if im.mode in ('RGBA', 'LA', 'P'):
+        im = im.convert('RGBA')
+        fundo = Image.new('RGB', im.size, 'white')
+        fundo.paste(im, mask=im.split()[-1])
+        return fundo
+    return im.convert('RGB')
+
+
+def _borda(im):
+    """(média, desvio) do brilho numa moldura fina em volta da foto."""
+    from PIL import ImageStat
+    g = im.convert('L')
+    w, h = g.size
+    e = max(2, min(w, h) // 50)
+    faixas = [g.crop((0, 0, w, e)), g.crop((0, h - e, w, h)), g.crop((0, 0, e, h)), g.crop((w - e, 0, w, h))]
+    medias = [ImageStat.Stat(f).mean[0] for f in faixas]
+    desvios = [ImageStat.Stat(f).stddev[0] for f in faixas]
+    return sum(medias) / 4, max(desvios), min(medias)
+
+
+def _ja_branca(im):
+    media, desvio, minimo = _borda(im)
+    return minimo >= 248 and desvio < 6
+
+
+def _quase_branca(im):
+    """Fundo liso quase branco (ex.: cinza clarinho da IKEA)."""
+    media, desvio, minimo = _borda(im)
+    return minimo >= 222 and desvio < 20  # tolera a sombra suave embaixo do móvel
+
+
+def _clarear(im):
+    """Leva o fundo quase branco a branco puro (sem recortar o móvel,
+    então móvel branco não ganha contorno)."""
+    from PIL import ImageStat
+    w, h = im.size
+    e = max(2, min(w, h) // 50)
+    amostra = [im.crop(c) for c in ((0, 0, w, e), (0, h - e, w, h))]
+    ref = [sum(ImageStat.Stat(a).median[i] for a in amostra) / 2 for i in range(3)]
+    canais = [c.point(lambda v, k=255 / max(r, 1): min(255, int(v * k + 0.5))) for c, r in zip(im.split(), ref)]
+    from PIL import Image
+    return Image.merge('RGB', canais)
+
+
+def _parece_estudio(im):
+    """Fundo liso e claro em volta (estúdio), não um ambiente decorado."""
+    media, desvio, minimo = _borda(im)
+    return minimo > 140 and desvio < 40  # ambiente decorado passa de ~60
+
+
+def _recortar(im):
+    """Tira o fundo (rembg) e põe o móvel no branco. None se não der
+    (sem rembg, recorte vazio, ou foto de detalhe que encosta nas bordas)."""
+    global _sessao
+    try:
+        from rembg import remove, new_session
+    except Exception:
+        return None
+    from PIL import Image
+    im.thumbnail((1200, 1200))
+    with _trava:
+        if _sessao is None:
+            _sessao = new_session('isnet-general-use')
+        out = remove(im, session=_sessao)
+    alfa = out.split()[-1].point(lambda v: 255 if v > 128 else 0)
+    caixa = alfa.getbbox()
+    if not caixa:
+        return None
+    w, h = im.size
+    l, t, rr, b = caixa
+    encosta = sum([l <= 2, t <= 2, rr >= w - 2, b >= h - 2])
+    area = sum(alfa.histogram()[255:]) / (w * h)
+    if encosta >= 3 or area < 0.03:
+        return None
+    branco = Image.new('RGB', im.size, 'white')
+    branco.paste(out, mask=out.split()[-1])
+    f = int(max(rr - l, b - t) * 0.05)
+    final = branco.crop((max(0, l - f), max(0, t - f), min(w, rr + f), min(h, b + f)))
+    final.info['encosta'] = encosta
+    final.info['largura'] = (rr - l) / max(1, b - t)
+    return final
+
+
+def foto_produto(r):
+    """Escolhe a foto (só o móvel, inteiro), deixa o fundo branco, reduz
+    e devolve como data URI. Resultado fica guardado em capturas/.fotos."""
+    from io import BytesIO
+    import hashlib
+    candidatas = [u for u in (r.get('candidatas') or [r['imagem']]) if u]
+    if not candidatas:
+        return ''
+    chave = hashlib.sha1(('|'.join(candidatas) + VERSAO_FOTOS).encode()).hexdigest()
+    arq = os.path.join(PASTA_FOTOS, chave + '.jpg')
+    if os.path.exists(arq):
+        with open(arq, 'rb') as f:
+            return 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode()
+    escolhida, primeira, recortes = None, None, []
+    lista = candidatas[:10]
+    for i, url in enumerate(lista):
+        try:
+            im = _abrir(_baixar_bytes(url))
+        except Exception:
+            continue
+        primeira = primeira or im
+        if _ja_branca(im):
+            escolhida = cortar_sobra(im)
+            break
+        if _quase_branca(im):
+            escolhida = cortar_sobra(_clarear(im))
+            break
+        ultima = i == len(lista) - 1
+        if len(lista) > 1 and not _parece_estudio(im) and not (ultima and not recortes):
+            continue  # foto de ambiente: tenta a próxima
+        rec = _recortar(im)
+        if rec is not None:
+            recortes.append(rec)
+            if len(recortes) >= 5 or len(lista) == 1:
+                break
+    if escolhida is None and recortes:
+        # o móvel inteiro (sem encostar na borda), na ordem da loja (a 1ª costuma
+        # ser a frontal); só pula as vistas bem mais estreitas (detalhe, lateral)
+        inteiros = [x for x in recortes if x.info.get('encosta', 0) == 0] or recortes
+        maior = max(x.info.get('largura', 0) for x in inteiros)
+        escolhida = next(x for x in inteiros if x.info.get('largura', 0) >= 0.75 * maior)
+    if escolhida is None:
+        if primeira is None:
+            return ''
+        escolhida = enquadrar(primeira)  # último recurso: foto original
+        r['conferir'].append('foto sem fundo branco')
+    escolhida.thumbnail((900, 900))
+    out = BytesIO()
+    escolhida.save(out, 'JPEG', quality=84, optimize=True)
+    dados = out.getvalue()
+    os.makedirs(PASTA_FOTOS, exist_ok=True)
+    with open(arq, 'wb') as f:
+        f.write(dados)
+    return 'data:image/jpeg;base64,' + base64.b64encode(dados).decode()
+
+
 def baixar_imagem(url):
     if not url:
         return ''
@@ -331,7 +494,12 @@ def preparar(item, lojas, secao=''):
         r['faixaPreco'] = int(x['faixa'])
     r['medidas'] = ''  # medidas não aparecem no PDF (decisão da curadoria)
     r['detalhe'] = x.get('detalhe', '')
-    r['img64'] = baixar_imagem(r['imagem'])
+    if x.get('foto'):
+        r['candidatas'] = [x['foto']]
+    try:
+        r['img64'] = foto_produto(r)
+    except Exception:
+        r['img64'] = baixar_imagem(r['imagem'])
     if r['imagem'] and not r['img64']:
         r['conferir'].append('foto não baixou')
     return r
@@ -364,6 +532,8 @@ def agrupar(todos, res):
             titulo = OUTROS
         paginas.setdefault(titulo, []).append(r)
         r['nome_pdf'] = it['extra'].get('nome') or r.get('modelo') or nome_curto(r['nome'], titulo)
+        if titulo in COM_MEDIDAS:
+            r['medidas'] = it['extra'].get('medidas') or medidas_do_nome(r['nome'])
 
     # mesmo modelo em cores/tecidos/tamanhos diferentes: acrescenta o que
     # muda entre eles ("Nymane · 4 Spots", "Ramnefjäll · Idekulla beige")
@@ -382,8 +552,8 @@ def agrupar(todos, res):
                 for r, v in zip(iguais, difs):
                     # sem palavra própria (ex.: a versão "padrão"): usa a própria cor/acabamento
                     v = traduzir(v or variacao(r['nome']))
-                    if len(v) > 44:
-                        v = v[:44].rsplit(' ', 1)[0]
+                    if len(v) > 48:
+                        v = v[:48].rsplit(' ', 1)[0]
                     if v:
                         r['nome_pdf'] = f'{nome} · {v}'
                 # ainda iguais entre si (só o tamanho muda): versão menor/maior
