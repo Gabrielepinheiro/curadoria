@@ -591,6 +591,7 @@ def preparar(item, lojas, secao=''):
         r['faixaPreco'] = int(x['faixa'])
     r['medidas'] = ''  # medidas não aparecem no PDF (decisão da curadoria)
     r['detalhe'] = x.get('detalhe', '')
+    r['foto_informada'] = x.get('foto', '')
     if x.get('foto'):
         # home24: a mesma foto existe maior no servidor (troca 500x500 por 1000x1000)
         foto = re.sub(r'(home24\.net/images/media/catalog/product/)\d+x\d+/', r'\g<1>1000x1000/', x['foto'])
@@ -876,7 +877,10 @@ def montar_html(secoes, titulo, subtitulo, assinatura, mostrar_valor):
         blocos = [s['prod'][i:i + POR_PAGINA] for i in range(0, len(s['prod']), POR_PAGINA)] or [[]]
         s['ancora'] = 'sec-' + str(len(sumario) + 1)
         sumario.append((exibir(s['titulo']), n, s['ancora']))
+        s['pagina_inicial'] = n
         for j, bloco in enumerate(blocos):
+            for r in bloco:
+                r['pagina_pdf'] = n  # usado pelo verificar_links.py
             cards = ''.join(card(r, mostrar_valor) for r in bloco)
             ident = f' id="{s["ancora"]}"' if j == 0 else ''
             paginas.append(f'''
@@ -983,6 +987,12 @@ def main():
                 avisos.append(f"[{s['titulo']}] {r['link']}\n    falta: {', '.join(r['conferir'])}")
 
     pagina = montar_html(secoes, a.titulo, a.subtitulo, a.assinatura, a.com_valor)
+    # para o verificar_links.py: onde está cada produto e cada item do sumário
+    with open(os.path.join(saida, 'produtos.json'), 'w', encoding='utf-8') as f:
+        json.dump([{'pagina': r['pagina_pdf'], 'nome': r['nome_pdf'], 'link': r['link'], 'loja': r['loja'],
+                    'foto': r.get('foto_informada', '')} for s in secoes for r in s['prod']], f, ensure_ascii=False, indent=1)
+    with open(os.path.join(saida, 'sumario.json'), 'w', encoding='utf-8') as f:
+        json.dump([[exibir(s['titulo']), s['pagina_inicial']] for s in secoes], f, ensure_ascii=False)
     with open(os.path.join(saida, 'previa-web.html'), 'w', encoding='utf-8') as f:
         f.write(montar_web(secoes, a.titulo, a.assinatura, a.com_valor))
     arq_html = os.path.join(saida, 'curadoria.html')
@@ -992,6 +1002,8 @@ def main():
         f.write('\n'.join(avisos + [''] + ['FORA DO PDF: ' + x for x in fora]).strip() or 'Tudo completo.')
     arq_pdf = os.path.join(saida, 'curadoria.pdf')
     subprocess.run(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pdf.mjs'), arq_html, arq_pdf], check=True)
+    # confere todos os links do PDF (clicáveis, na página certa e abrindo na loja)
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'verificar_links.py'), saida])
     print(f'\n{total} produtos · {len(avisos)} para conferir\nPDF: {arq_pdf}')
 
 

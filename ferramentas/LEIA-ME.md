@@ -60,7 +60,13 @@ Sai em `capturas/<data>/`:
 - **curadoria.pdf**: A4 vertical (bom de ler no celular), fundo branco, capa,
   sumário clicável e 6 produtos por página. Cada produto é clicável e abre a loja;
 - **curadoria.html**: a mesma coisa, para ajustes;
-- **conferir.txt**: o que faltou capturar.
+- **conferir.txt**: o que faltou capturar;
+- **verificacao-links.txt**: a conferência de todos os links (roda sozinha ao
+  final). Ela checa se cada produto tem link clicável na página certa, se o
+  link abre a página daquele produto na loja (sem erro, sem ter saído de
+  linha) e se o sumário leva às páginas certas. Lojas que bloqueiam robô
+  aparecem em "conferir à mão". Para rodar avulsa:
+  `python3 ferramentas/verificar_links.py capturas/<pasta>`.
 
 Por padrão, o card mostra só a faixa: € até 150 · €€ 150–400 · €€€ 400–800 ·
 €€€€ 800–1.500 · €€€€€ acima de 1.500 (ajustável em `FAIXAS`, no `capturar.py`).
