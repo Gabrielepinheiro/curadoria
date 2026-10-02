@@ -46,7 +46,8 @@ ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
     'Cama', 'Cômoda', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
     'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Poltrona', 'Puff', 'Sofá',
-    'Área externa', 'Cortina', 'Decoração', 'Espelho', 'Iluminação',
+    'Área externa', 'Cortina', 'Decoração', 'Espelho',
+    'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
 ]
 OUTROS = 'Outros'
@@ -122,16 +123,40 @@ def variacao(nome):
     return v[:24]
 
 
+def diferencas(nomes):
+    """Do grupo de nomes completos, devolve para cada um só as palavras que
+    os outros não têm (sem medidas): o que distingue a variação."""
+    def palavras(n):
+        n = MEDIDA.sub('', n or '')
+        return [w for w in re.split(r'[\s/,()]+|\s[-–—]\s', n) if w and w not in '-–—']
+    listas = [palavras(n) for n in nomes]
+    comuns = set.intersection(*[set(cap.sem_acento(w) for w in l) for l in listas]) if listas else set()
+    saida = []
+    for l in listas:
+        # número sozinho leva a palavra seguinte junto ("3" -> "3 Spots")
+        v = ' '.join(w + (' ' + l[i + 1] if w.isdigit() and i + 1 < len(l) and cap.sem_acento(l[i + 1]) in comuns else '')
+                     for i, w in enumerate(l) if cap.sem_acento(w) not in comuns)
+        if len(v) > 26:
+            v = v[:26].rsplit(' ', 1)[0]
+        saida.append(v)
+    return saida
+
+
 def nome_curto(nome, secao=''):
     """Nome de vitrine, sem repetir a categoria da página:
     'STRANDMON Poltrona - Talliden bege' -> 'Strandmon'
     'Poltrona Beegees Suede Preta' (seção Poltronas) -> 'Beegees Suede Preta'"""
     n = re.split(r'\s+[-–—|]\s+|,\s', nome or '')[0].strip()
+    # padrão "Tipo aus/in/em Material Modelo" (Sklum e outras):
+    # '3-Sitzer-Sofa aus Chenille Coco' -> 'Coco'
+    m = re.match(r'^(\S+(?:\s\S+){0,3}?)\s+(?:aus|in|mit|em|de|en|in|with|en)\s+.+\s([A-ZÀ-Þ][\w\'’-]+)$', n)
+    if m and cap.sugerir_categoria(m.group(1).replace('-', ' ')):
+        return m.group(2)
     palavras = n.split()
     # padrão IKEA: MODELO EM MAIÚSCULAS + descrição -> só o modelo
     caps = []
     for w in palavras:
-        if len(w) >= 2 and w.isupper() and any(c.isalpha() for c in w):
+        if (len(w) >= 2 and w.isupper() and any(c.isalpha() for c in w)) or (w == '/' and caps):
             caps.append(w)
         else:
             break
@@ -224,7 +249,7 @@ def preparar(item, lojas, secao=''):
         r['faixaPreco'] = cap.faixa(r['preco'], r['regiao'])
     if x.get('faixa'):
         r['faixaPreco'] = int(x['faixa'])
-    r['medidas'] = x.get('medidas') or medidas_do_nome(r['nome'])
+    r['medidas'] = ''  # medidas não aparecem no PDF (decisão da curadoria)
     r['detalhe'] = x.get('detalhe', '')
     r['img64'] = baixar_imagem(r['imagem'])
     if r['imagem'] and not r['img64']:
@@ -260,13 +285,13 @@ def agrupar(todos, res):
         paginas.setdefault(titulo, []).append(r)
         r['nome_pdf'] = it['extra'].get('nome') or nome_curto(r['nome'], titulo)
 
-    # mesmo modelo em cores/tecidos diferentes: acrescenta a variação
+    # mesmo modelo em cores/tecidos/tamanhos diferentes: acrescenta o que
+    # muda entre eles ("Nymane · 4 Spots", "Ramnefjäll · Idekulla beige")
     for prods in paginas.values():
         for nome in {r['nome_pdf'] for r in prods}:
             iguais = [r for r in prods if r['nome_pdf'] == nome]
             if len(iguais) > 1:
-                for r in iguais:
-                    v = variacao(r['nome'])
+                for r, v in zip(iguais, diferencas([r['nome'] for r in iguais])):
                     if v:
                         r['nome_pdf'] = f'{nome} · {v}'
 
@@ -439,8 +464,10 @@ def main():
         if r.get('eh_lista'):
             fora.append(f"link de lista, não de produto: {r['link']}")
             continue
-        chaves = [k for k in ((r['loja'], cap.sem_acento(r['nome'])) if r['nome'] else None,
-                              ('img', r['imagem']) if r['imagem'] else None) if k]
+        # repetido = o MESMO produto: mesmo código da loja, ou mesmo nome
+        # completo E mesma foto. Outra cor/tecido/tamanho não é repetido.
+        chaves = [k for k in ((r['loja'], 'ref', r['referencia']) if r['referencia'] else None,
+                              (r['loja'], cap.sem_acento(r['nome']), r['imagem']) if r['nome'] and r['imagem'] else None) if k]
         dup = next((ja[k] for k in chaves if k in ja), None)
         if dup:
             fora.append(f"repetido: {r['link']}  (igual a {dup})")

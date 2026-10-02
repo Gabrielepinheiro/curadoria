@@ -8,7 +8,7 @@ qualquer ordem**:
 ```
 https://loja.com/sofa-lago
 https://loja.com/cadeira-ana
-https://loja.com/mesa-pampa | medidas: 45 × 40 cm | detalhe: carvalho maciço
+https://loja.com/mesa-pampa | detalhe: carvalho maciço
 https://loja.com/peca-x | categoria: Mesa lateral
 ```
 
@@ -24,9 +24,9 @@ https://loja.com/peca-x | categoria: Mesa lateral
   categoria (ex.: `/cat/betten`) ficam de fora. Tudo isso fica anotado em
   `conferir.txt`.
 - O mesmo modelo em cores diferentes ganha a variação no nome ("Ramnefjäll ·
-  Idekulla beige"). Medidas escritas no nome da loja (160x200 cm) aparecem
-  sozinhas, e a margem branca das fotos é cortada.
-- Outros campos opcionais depois de `|`: `nome`, `loja`, `medidas`, `detalhe`,
+  Idekulla beige", "Nymåne · 4 Spots"). Medidas não aparecem no PDF. A margem
+  branca das fotos é cortada.
+- Outros campos opcionais depois de `|`: `nome`, `loja`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você
   escrever vale mais que o capturado.
 

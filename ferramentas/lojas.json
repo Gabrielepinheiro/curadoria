@@ -1,22 +1,86 @@
 {
-  "westwing.de":       {"nome": "Westwing",     "regiao": "europa"},
-  "westwing.pt":       {"nome": "Westwing",     "regiao": "europa"},
-  "westwing.es":       {"nome": "Westwing",     "regiao": "europa"},
-  "westwing.fr":       {"nome": "Westwing",     "regiao": "europa"},
-  "westwing.it":       {"nome": "Westwing",     "regiao": "europa"},
-  "westwing.com.br":   {"nome": "Westwing BR",  "regiao": "brasil"},
-  "hm.com":            {"nome": "H&M Home",     "regiao": "europa"},
-  "benuta.de":         {"nome": "Benuta",       "regiao": "europa"},
-  "urbanara.de":       {"nome": "Urbanara",     "regiao": "europa"},
-  "kavehome.com":      {"nome": "Kave Home",    "regiao": "europa"},
-  "zarahome.com":      {"nome": "Zara Home",    "regiao": "europa"},
-  "laredoute.fr":      {"nome": "La Redoute",   "regiao": "europa"},
-  "laredoute.pt":      {"nome": "La Redoute",   "regiao": "europa"},
-  "selency.com":       {"nome": "Selency",      "regiao": "europa"},
-  "selency.fr":        {"nome": "Selency",      "regiao": "europa"},
-  "ikea.com":          {"nome": "IKEA",         "regiao": "europa"},
-  "maisonsdumonde.com":{"nome": "Maisons du Monde", "regiao": "europa"},
-  "tokstok.com.br":    {"nome": "Tok&Stok",     "regiao": "brasil"},
-  "mobly.com.br":      {"nome": "Mobly",        "regiao": "brasil"},
-  "etna.com.br":       {"nome": "Etna",         "regiao": "brasil"}
+  "westwing.de": {
+    "nome": "Westwing",
+    "regiao": "europa"
+  },
+  "westwing.pt": {
+    "nome": "Westwing",
+    "regiao": "europa"
+  },
+  "westwing.es": {
+    "nome": "Westwing",
+    "regiao": "europa"
+  },
+  "westwing.fr": {
+    "nome": "Westwing",
+    "regiao": "europa"
+  },
+  "westwing.it": {
+    "nome": "Westwing",
+    "regiao": "europa"
+  },
+  "westwing.com.br": {
+    "nome": "Westwing BR",
+    "regiao": "brasil"
+  },
+  "hm.com": {
+    "nome": "H&M Home",
+    "regiao": "europa"
+  },
+  "benuta.de": {
+    "nome": "Benuta",
+    "regiao": "europa"
+  },
+  "urbanara.de": {
+    "nome": "Urbanara",
+    "regiao": "europa"
+  },
+  "kavehome.com": {
+    "nome": "Kave Home",
+    "regiao": "europa"
+  },
+  "zarahome.com": {
+    "nome": "Zara Home",
+    "regiao": "europa"
+  },
+  "laredoute.fr": {
+    "nome": "La Redoute",
+    "regiao": "europa"
+  },
+  "laredoute.pt": {
+    "nome": "La Redoute",
+    "regiao": "europa"
+  },
+  "selency.com": {
+    "nome": "Selency",
+    "regiao": "europa"
+  },
+  "selency.fr": {
+    "nome": "Selency",
+    "regiao": "europa"
+  },
+  "ikea.com": {
+    "nome": "IKEA",
+    "regiao": "europa"
+  },
+  "maisonsdumonde.com": {
+    "nome": "Maisons du Monde",
+    "regiao": "europa"
+  },
+  "tokstok.com.br": {
+    "nome": "Tok&Stok",
+    "regiao": "brasil"
+  },
+  "mobly.com.br": {
+    "nome": "Mobly",
+    "regiao": "brasil"
+  },
+  "etna.com.br": {
+    "nome": "Etna",
+    "regiao": "brasil"
+  },
+  "sklum.com": {
+    "nome": "Sklum",
+    "regiao": "europa"
+  }
 }

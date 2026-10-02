@@ -50,6 +50,18 @@ SIMBOLO = {'europa': '€', 'brasil': 'R$'}
 # Categoria sugerida por palavras no nome/link (pt, es, fr, de, it, en).
 # A ordem importa: o primeiro que bater vence (mais específico antes).
 CATEGORIAS = [
+    # Iluminação por tipo — antes de tudo, para "luminária de mesa" não virar mesa
+    ('Luminária de piso', ['luminaria de piso', 'luminaria de chao', 'candeeiro de pe', 'candeeiro de chao', 'abajur de chao',
+                           'stehleuchte', 'stehlampe', 'lampadaire', 'lampara de pie', 'lampada da terra', 'floor lamp', 'standing lamp']),
+    ('Luminária de parede', ['luminaria de parede', 'candeeiro de parede', 'arandela', 'aplique', 'applique', 'wandleuchte',
+                             'wandlampe', 'wandfluter', 'wandspot', 'lampara de pared', 'wall lamp', 'wall light', 'sconce']),
+    ('Luminária de mesa', ['luminaria de mesa', 'candeeiro de mesa', 'abajur', 'tischleuchte', 'tischlampe', 'schreibtischleuchte',
+                           'lampe de table', 'lampe a poser', 'lampe de bureau', 'lampara de mesa', 'lampada da tavolo',
+                           'table lamp', 'desk lamp']),
+    ('Luminária de teto', ['luminaria de teto', 'candeeiro de teto', 'pendente', 'lustre', 'plafon', 'plafonnier', 'spot', 'spots',
+                           'trilho', 'deckenleuchte', 'deckenlampe', 'deckenspot', 'deckenschiene', 'hangeleuchte', 'haengeleuchte',
+                           'pendelleuchte', 'kronleuchter', 'suspension', 'lampara de techo', 'colgante', 'lampadario', 'sospensione',
+                           'pendant', 'ceiling lamp', 'ceiling light', 'chandelier']),
     ('Cadeira de escritório', ['cadeira de escritorio', 'silla de oficina', 'chaise de bureau', 'burostuhl', 'buerostuhl', 'drehstuhl', 'sedia da ufficio', 'office chair', 'desk chair']),
     ('Mesa de cabeceira', ['mesa de cabeceira', 'criado-mudo', 'criado mudo', 'mesita de noche', 'table de chevet', 'nachttisch', 'comodino', 'bedside', 'nightstand']),
     ('Mesa de centro', ['mesa de centro', 'table basse', 'couchtisch', 'tavolino da salotto', 'coffee table']),
@@ -66,7 +78,7 @@ CATEGORIAS = [
     ('Estante', ['estante', 'prateleira', 'estanteria', 'libreria', 'etagere', 'bibliotheque', 'regal', 'bookcase', 'shelf', 'shelving']),
     ('Puff', ['puff', 'pouf', 'otomana', 'ottoman']),
     ('Espelho', ['espelho', 'espejo', 'miroir', 'spiegel', 'specchio', 'mirror']),
-    ('Iluminação', ['luminaria', 'candeeiro', 'pendente', 'lustre', 'lampada', 'lampara', 'lampe', 'leuchte', 'lampadario', 'lamp', 'aplique', 'applique', 'suspension']),
+    ('Iluminação', ['luminaria', 'candeeiro', 'lampada', 'lampara', 'lampe', 'leuchte', 'lamp']),
     ('Tapete', ['tapete', 'alfombra', 'tapis', 'teppich', 'tappeto', 'rug', 'carpet']),
     ('Cortina', ['cortina', 'cortinado', 'rideau', 'vorhang', 'gardine', 'tenda', 'curtain']),
     ('Papel de parede', ['papel de parede', 'papel pintado', 'papier peint', 'tapete wand', 'tapete vlies', 'carta da parati', 'wallpaper']),
