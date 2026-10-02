@@ -211,6 +211,9 @@ def traduzir(texto):
         if t in ('escuro', 'claro'):  # "dunkel graublau" -> "azul acinzentado escuro"
             adiar = t
             continue
+        if t and adiar and (t.startswith('jogo') or t[0].isdigit()):  # "hell 2er" -> "claro jogo de 2"
+            saida.append(adiar)
+            adiar = ''
         if t:
             saida.append(t)
             if adiar:
@@ -570,6 +573,8 @@ def familia_cor(dados):
     h *= 360
     if sat < 0.10:
         return 'branco' if v > 0.80 else ('cinza' if v > 0.38 else 'preto')
+    if (h < 15 or h >= 345) and v < 0.55 and sat < 0.8:  # madeira escura avermelhada (mogno, nogueira)
+        return 'madeira escura'
     if 15 <= h < 50:  # tons quentes: creme, bege e madeiras
         if sat < 0.22:
             return 'creme' if v > 0.80 else ('bege' if v > 0.62 else 'cinza')
