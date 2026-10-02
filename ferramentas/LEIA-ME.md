@@ -37,8 +37,8 @@ https://loja.com/peca-x | categoria: Mesa lateral
   ambiente e detalhe). Fundo quase branco é clareado. Fundo cinza de estúdio
   é recortado com o `rembg` (`pip install "rembg[cpu]"`). As fotos tratadas
   ficam guardadas em `capturas/.fotos`, para não refazer a cada lote.
-- **Subcategorias**: uma categoria `Grupo · Sub` (ex.: `Decoração · Cestos`) vira
-  a página "Cestos", com "Decoração" pequeno acima do título.
+- **Subcategorias**: uma categoria `Grupo · Sub` (ex.: `Depósito & Organização · Cestos`)
+  vira a página "Cestos", com "Depósito & Organização" pequeno acima do título.
 - **Medidas** só aparecem na página Espelho (`COM_MEDIDAS` em `montar_pdf.py`).
 - Outros campos opcionais depois de `|`: `nome`, `loja`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você

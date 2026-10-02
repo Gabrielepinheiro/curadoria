@@ -48,10 +48,10 @@ ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
     'Cama', 'Cômoda', 'Cristaleira', 'Estante', 'Rack de TV', 'Mesa de cabeceira',
     'Mesa de centro', 'Mesa de escritório', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
-    'Área externa', 'Cortina', 'Decoração', 'Decoração · Cestos', 'Espelho',
+    'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
-    'Infantil', 'Depósito & Organização',
+    'Infantil', 'Depósito & Organização', 'Depósito & Organização · Cestos',
 ]
 # Páginas em que as medidas aparecem no card (nas outras, não).
 COM_MEDIDAS = {'Espelho'}
@@ -180,7 +180,7 @@ def diferencas(nomes):
     os outros não têm (sem medidas): o que distingue a variação."""
     def palavras(n):
         n = MEDIDA.sub('', n or '')
-        n = re.sub(r'(?:Ø|ø|⌀)?\s*\d+(?:[.,]\d+)?\s*cm\b', '', n)
+        n = re.sub(r'(?:Ø|ø|⌀)?\s*\d+(?:[.,]\d+)?\s*(?:cm|mm|l|cl|ml)\b', '', n)
         return [w for w in re.split(r'[\s/,()]+|\s[-–—]\s', n) if w and w not in '-–—']
     listas = [palavras(n) for n in nomes]
     comuns = set.intersection(*[set(cap.sem_acento(w) for w in l) for l in listas]) if listas else set()
