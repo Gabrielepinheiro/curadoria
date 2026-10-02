@@ -47,6 +47,9 @@ https://loja.com/peca-x | categoria: Mesa lateral
 - **Lojas que bloqueiam** (Maisons du Monde, home24, H&M): complete com
   `| foto: … | preco: …`. A foto pode ser o link da imagem (o servidor de fotos
   costuma abrir) ou um arquivo salvo em `curadoria/fotos/`.
+- Também vale colar no formato **`Nome | link | link da foto | preço`**. O
+  programa tira o modelo do nome ("Esstisch TAYLOR" vira "Taylor") e a
+  categoria do tipo de peça.
 - Outros campos opcionais depois de `|`: `nome`, `loja`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você
   escrever vale mais que o capturado.

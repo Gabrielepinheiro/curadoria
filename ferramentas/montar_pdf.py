@@ -82,6 +82,32 @@ MOEDA = {'EUR': '€', 'BRL': 'R$', 'GBP': '£', 'USD': '$', 'CHF': 'CHF'}
 
 
 # ------------------------------------------------------------ lista
+def formato_posicional(linha):
+    """'Nome | link | link da foto | preço' (o jeito de colar da Gabriele)
+    -> o mesmo que 'link | nome: … | foto: … | preco: …'."""
+    partes = [x.strip() for x in linha.split('|')]
+    link = next((x for x in partes if re.match(r'https?://', x) and not re.search(r'\.(avif|jpe?g|png|webp)(\?|$)', x)), '')
+    if not link:
+        return None
+    foto = next((x for x in partes if x != link and re.match(r'https?://', x)), '')
+    preco = next((x for x in partes if re.fullmatch(r'[€R$\s]*\d[\d.,]*\s*€?', x)), '')
+    nome = partes[0] if not re.match(r'https?://', partes[0]) else ''
+    resto = ''.join(f' | {k}: {v}' for k, v in (('nome', nome_do_titulo(nome)), ('foto', foto), ('preco', preco),
+                                              ('categoria', cap.sugerir_categoria(nome).rstrip('?'))) if v)
+    return re.match(r'(https?://[^\s|]+)(.*)$', link + resto)
+
+
+def nome_do_titulo(nome):
+    """'Esstisch ANTELADA' -> 'Antelada'; 'Beistelltisch Morristown' -> 'Morristown'."""
+    palavras = nome.split()
+    caps = [w for w in palavras if len(w) > 2 and w.isupper()]
+    if caps:
+        return ' '.join(w.capitalize() for w in caps)
+    while len(palavras) > 1 and cap.sugerir_categoria(palavras[0]):
+        palavras = palavras[1:]
+    return ' '.join(palavras)
+
+
 def ler_lista(caminho):
     secoes, atual = [], None
     with open(caminho, encoding='utf-8') as f:
@@ -94,6 +120,8 @@ def ler_lista(caminho):
                 secoes.append(atual)
                 continue
             m = re.match(r'(https?://[^\s|]+)(.*)$', linha)
+            if not m and '|' in linha:
+                m = formato_posicional(linha)
             if not m:
                 continue
             extra = {}
@@ -395,6 +423,20 @@ def _clarear(im):
     return Image.merge('RGB', canais)
 
 
+def _margem_se_encostar(im):
+    """Móvel recortado bem rente à foto (encosta nas bordas), mas com os cantos
+    brancos: põe uma margem branca em volta para o fundo ser reconhecido."""
+    from PIL import Image
+    w, h = im.size
+    cantos = [im.getpixel(p) for p in ((1, 1), (w - 2, 1), (1, h - 2), (w - 2, h - 2))]
+    if not all(min(c) >= 242 for c in cantos):
+        return im
+    f = max(4, int(max(w, h) * 0.06))
+    novo = Image.new('RGB', (w + 2 * f, h + 2 * f), 'white')
+    novo.paste(im, (f, f))
+    return novo
+
+
 def _eh_desenho(im):
     """Desenho técnico/medidas: quase tudo branco puro, sem cor, só linhas."""
     from PIL import ImageStat
@@ -469,6 +511,7 @@ def foto_produto(r):
             im = _abrir(_baixar_bytes(url))
         except Exception:
             continue
+        im = _margem_se_encostar(im)
         primeira = primeira or im
         if _ja_branca(im) or _quase_branca(im):
             # fundo branco: só vale se ainda não há recorte bom de uma foto anterior
