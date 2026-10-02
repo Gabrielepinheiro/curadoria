@@ -1,4 +1,42 @@
-# Captura de produtos — cola o link, sai o produto
+# Curadoria em PDF — cola o link, sai o catálogo
+
+## O jeito principal: `montar_pdf.py`
+
+Você escreve uma lista simples (ou manda para o Claude no chat):
+
+```
+# Sofás
+https://loja.com/sofa-lago
+https://loja.com/sofa-dara | nome: Dara | medidas: 100 × 220 cm | detalhe: capa algodão off
+
+# Mesa de cabeceira
+https://loja.com/mesa-pampa
+```
+
+- `# Título` abre uma seção, que vira o título da página.
+- Depois do link, com `|`, você pode escrever: `nome`, `loja`, `medidas`,
+  `detalhe`, `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que
+  você escrever vale mais que o capturado.
+
+```bash
+python3 ferramentas/montar_pdf.py lista.txt
+python3 ferramentas/montar_pdf.py lista.txt --titulo "Curadoria Europa" --sem-valor
+```
+
+Sai em `capturas/<data>/`:
+- **curadoria.pdf**: A4 horizontal, fundo branco, capa, sumário clicável e
+  8 produtos por página. Cada produto é clicável e abre a loja;
+- **curadoria.html**: a mesma coisa, para ajustes;
+- **conferir.txt**: o que faltou capturar.
+
+Por padrão, o card mostra a faixa (€€) e o valor aproximado (≈ € 199). Com
+`--sem-valor`, mostra só a faixa. Fontes: Cormorant Garamond e Jost, que vão
+embutidas no arquivo (`fontes/`). Requisitos: Python 3, Node com Playwright
+(Chromium) e, opcionalmente, o Pillow, para deixar o PDF leve.
+
+---
+
+## Só a captura (CSV / prévia): `capturar.py`
 
 Você manda os links (no chat com o Claude, um por linha) e a ferramenta
 `capturar.py` lê cada página e traz:
