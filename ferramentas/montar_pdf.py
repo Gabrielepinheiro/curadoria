@@ -51,7 +51,8 @@ ORDEM = [
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
-    'Infantil', 'Depósito & Organização', 'Depósito & Organização · Cestos',
+    'Infantil · Camas', 'Infantil · Mesas & Cadeiras', 'Infantil · Escrivaninhas', 'Infantil · Organização',
+    'Infantil · Almofadas & Tapetes', 'Infantil · Decoração', 'Depósito & Organização', 'Depósito & Organização · Cestos',
 ]
 # Páginas em que as medidas aparecem no card (nas outras, não).
 COM_MEDIDAS = {'Espelho'}
@@ -153,6 +154,9 @@ TRADUCOES = _carregar_traducoes()
 
 def traduzir(texto):
     """'4 Schubladen dunkel graublau' -> '4 gavetas azul acinzentado escuro'."""
+    texto = texto.replace('~', ' ')
+    texto = re.sub(r'\bmit\s+aufbewahrung\b', 'com baú', texto, flags=re.I)
+    texto = re.sub(r'\bmit\s+stauraum\b', 'com baú', texto, flags=re.I)
     saida, adiar = [], ''
     for w in texto.split():
         t = TRADUCOES.get(cap.sem_acento(w).strip('-'), w)
@@ -180,6 +184,8 @@ def diferencas(nomes):
     os outros não têm (sem medidas): o que distingue a variação."""
     def palavras(n):
         n = MEDIDA.sub('', n or '')
+        # "mit Fach" fica junto (vira "com nicho"), senão o "mit" some como palavra comum
+        n = re.sub(r'\b(mit|m\.|com|with|avec|con)\s+(?=\w)', lambda m: m.group(1) + '~', n, flags=re.I)
         n = re.sub(r'(?:Ø|ø|⌀)?\s*\d+(?:[.,]\d+)?\s*(?:cm|mm|l|cl|ml)\b', '', n)
         return [w for w in re.split(r'[\s/,()]+|\s[-–—]\s', n) if w and w not in '-–—']
     listas = [palavras(n) for n in nomes]
@@ -416,7 +422,7 @@ def foto_produto(r):
     arq = os.path.join(PASTA_FOTOS, chave + '.jpg')
     if os.path.exists(arq):
         with open(arq, 'rb') as f:
-            return 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode()
+            return _embutir(f.read())
     escolhida, primeira, recortes = None, None, []
     lista = candidatas[:10]
     for i, url in enumerate(lista):
@@ -457,7 +463,18 @@ def foto_produto(r):
     os.makedirs(PASTA_FOTOS, exist_ok=True)
     with open(arq, 'wb') as f:
         f.write(dados)
-    return 'data:image/jpeg;base64,' + base64.b64encode(dados).decode()
+    return _embutir(dados)
+
+
+def _embutir(dados, lado=720, qualidade=80):
+    """Foto já tratada -> data URI leve para o PDF (o card tem ~8 cm)."""
+    from io import BytesIO
+    from PIL import Image
+    im = Image.open(BytesIO(dados)).convert('RGB')
+    im.thumbnail((lado, lado))
+    out = BytesIO()
+    im.save(out, 'JPEG', quality=qualidade, optimize=True, progressive=True)
+    return 'data:image/jpeg;base64,' + base64.b64encode(out.getvalue()).decode()
 
 
 def baixar_imagem(url):
@@ -518,6 +535,27 @@ def categoria_oficial(texto):
     return texto.strip()
 
 
+SUB_INFANTIL = [  # a 1ª que bater vence
+    ('Camas', ['bett', 'bettgest', 'bettgestell', 'kinderbett', 'babybett', 'cama', 'berco', 'bed', 'lit', 'cuna']),
+    ('Escrivaninhas', ['schreibtisch', 'escrivaninha', 'desk', 'bureau', 'escritorio']),
+    ('Mesas & Cadeiras', ['tisch', 'kindertisch', 'stuhl', 'kinderstuhl', 'hocker', 'kinderhocker', 'pouf', 'puff', 'sessel',
+                          'mesa', 'cadeira', 'banqueta', 'banco', 'poltrona', 'table', 'chair', 'stool', 'silla', 'chaise']),
+    ('Organização', ['aufbewahrung', 'regal', 'box', 'boxen', 'kasten', 'schrank', 'kommode', 'organizacao', 'estante',
+                     'armario', 'bau', 'storage', 'shelf']),
+    ('Almofadas & Tapetes', ['kissen', 'teppich', 'decke', 'almofada', 'tapete', 'manta', 'cushion', 'pillow', 'rug',
+                             'blanket', 'coussin', 'tapis']),
+]
+
+
+def sub_infantil(r):
+    """Subpágina de Infantil pelo nome/link (sem achar: Decoração)."""
+    t = ' ' + cap.sem_acento(r['nome'] + ' ' + r['link']).replace('-', ' ').replace('/', ' ').replace('.', ' ') + ' '
+    for sub, palavras in SUB_INFANTIL:
+        if any(re.search(r'(?<![a-z])' + re.escape(p) + r'(?![a-z])', t) for p in palavras):
+            return sub
+    return 'Decoração'
+
+
 def agrupar(todos, res):
     """Cada produto vai para a página da sua categoria. Vale, nesta ordem:
     '| categoria: X' > '# Título' da lista > categoria detectada."""
@@ -530,6 +568,8 @@ def agrupar(todos, res):
                 r['conferir'] = [c for c in r['conferir'] if not c.startswith('categoria')]
         else:
             titulo = OUTROS
+        if titulo == 'Infantil':
+            titulo = 'Infantil · ' + sub_infantil(r)
         paginas.setdefault(titulo, []).append(r)
         r['nome_pdf'] = it['extra'].get('nome') or r.get('modelo') or nome_curto(r['nome'], titulo)
         if titulo in COM_MEDIDAS:
@@ -636,10 +676,13 @@ h1.sub { margin-top: 2mm; }
 .capa .sub { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 14pt; color: var(--suave); }
 .capa .assina { position: absolute; bottom: 14mm; left: 0; right: 0; font-size: 7pt;
   letter-spacing: .32em; text-transform: uppercase; color: var(--suave); }
-.sumario { width: 130mm; margin: 4mm auto 0; }
+.sumario { width: 100%; margin: 2mm auto 0; column-count: 2; column-gap: 12mm; column-fill: auto; height: 225mm; }
 .sumario a { display: flex; align-items: baseline; gap: 3mm; text-decoration: none; color: inherit;
-  padding: 2.2mm 0; border-bottom: .25mm solid var(--linha); break-inside: avoid;
-  font-family: 'EB Garamond', Georgia, serif; font-size: 13pt; }
+  padding: 1.6mm 0; border-bottom: .25mm solid var(--linha); break-inside: avoid;
+  font-family: 'EB Garamond', Georgia, serif; font-size: 12pt; }
+.sumario a.subitem { padding-left: 4mm; font-size: 11pt; }
+.sumario .grupo-sum { break-inside: avoid; break-after: avoid; margin: 3mm 0 0; padding: 1.6mm 0 1mm;
+  font-family: 'Jost', sans-serif; font-size: 6.8pt; letter-spacing: .28em; text-transform: uppercase; color: var(--bronze); }
 .sumario a span:last-child { margin-left: auto; font-family: 'Jost', sans-serif; font-size: 7pt;
   letter-spacing: .2em; color: var(--suave); }
 """
@@ -710,7 +753,18 @@ def montar_html(secoes, titulo, subtitulo, assinatura, mostrar_valor):
   <p class="sub">{e(subtitulo)}</p>
   <p class="assina">{e(assinatura)}</p>
 </section>'''
-    itens = ''.join(f'<a href="#{a}"><span>{e(t.replace(" · ", " — "))}</span><span>{p}</span></a>' for t, p, a in sumario)
+    itens, grupo_atual = [], None
+    for t, p, a in sumario:
+        if ' · ' in t:  # subcategoria: o grupo aparece uma vez, as subs embaixo
+            grupo, sub = t.split(' · ', 1)
+            if grupo != grupo_atual:
+                itens.append(f'<p class="grupo-sum">{e(grupo)}</p>')
+                grupo_atual = grupo
+            itens.append(f'<a class="subitem" href="#{a}"><span>{e(sub)}</span><span>{p}</span></a>')
+        else:
+            grupo_atual = t  # subs deste grupo logo abaixo entram sem repetir o nome
+            itens.append(f'<a href="#{a}"><span>{e(t)}</span><span>{p}</span></a>')
+    itens = ''.join(itens)
     pag_sumario = f'''
 <section class="pagina">
   <div class="topo"><span>{e(assinatura)}</span><span>{e(titulo)}</span></div>
