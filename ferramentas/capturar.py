@@ -89,7 +89,7 @@ CATEGORIAS = [
     ('Poltrona', ['drehsessel', 'schaukelsessel', 'ohrensessel', 'loungesessel', 'poltrona', 'butaca', 'sillon', 'fauteuil', 'sessel', 'armchair', 'lounge chair']),
     ('Sofá', ['sofa', 'canape', 'divano', 'couch', 'chaise longue', 'chaiselongue', 'modulsofa', 'ecksofa',
               'polstersofa', 'sitzer sofa', 'modulares sofa', 'sofa modular', 'sectional']),
-    ('Cadeira', ['cadeira', 'silla', 'chaise', 'stuhl', 'sedia', 'chair']),
+    ('Cadeira', ['esszimmerstuhl', 'polsterstuhl', 'cadeira', 'silla', 'chaise', 'stuhl', 'sedia', 'chair']),
     ('Cama', ['cama', 'lit ', 'bett', 'bettgestell', 'polsterbett', 'bettrahmen', 'boxspringbett', 'letto', 'bed frame', 'cabeceira', 'headboard']),
     ('Cômoda', ['comoda', 'commode', 'kommode', 'cassettiera', 'chest of drawers', 'dresser']),
     ('Escritório · Armários', ['aktenschrank', 'buroschrank', 'rollcontainer', 'arquivo', 'gaveteiro', 'file cabinet']),
