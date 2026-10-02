@@ -150,3 +150,4 @@ https://www.maisonsdumonde.com/DE/de/p/buffet-3-portes-decor-noyer-et-facades-ti
 https://www.maisonsdumonde.com/DE/de/p/buffet-en-bois-recycle-18-tiroirs-miramas-M21036927.htm | preco: 939
 https://www.home24.de/produkt/esszimmerstuhl-flomaton-buche-4er-set | categoria: Cadeira | nome: Flomaton
 https://www.home24.de/produkt/esstisch-olson-gummibaum-teilmassiv-walnuss | nome: Olson | foto: curadoria/fotos/olson-home24.webp | preco: 369 | categoria: Mesa de jantar
+https://www.home24.de/produkt/couchtisch-bourapil-eiche | nome: Bourapil | foto: https://cdn1.home24.net/images/media/catalog/product/500x500/png/-/1/-1000408975-240404-010-IMAGE-P000000001000408975.avif | preco: 279,99 | categoria: Mesa de centro

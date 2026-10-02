@@ -592,7 +592,9 @@ def preparar(item, lojas, secao=''):
     r['medidas'] = ''  # medidas não aparecem no PDF (decisão da curadoria)
     r['detalhe'] = x.get('detalhe', '')
     if x.get('foto'):
-        r['candidatas'] = [x['foto']]
+        # home24: a mesma foto existe maior no servidor (troca 500x500 por 1000x1000)
+        foto = re.sub(r'(home24\.net/images/media/catalog/product/)\d+x\d+/', r'\g<1>1000x1000/', x['foto'])
+        r['candidatas'] = [foto]
         if x.get('preco'):  # loja bloqueada, mas você completou foto e preço: nada a conferir
             r['conferir'] = [c for c in r['conferir'] if not c.startswith('não abriu') and c != 'sem preço']
     try:
