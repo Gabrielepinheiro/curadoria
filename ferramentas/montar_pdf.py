@@ -45,7 +45,7 @@ POR_PAGINA = 6
 # Ordem das páginas — a mesma de CATEGORIES em assets/config.js.
 ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
-    'Cama', 'Cômoda', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
+    'Cama', 'Cômoda', 'Cristaleira', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
     'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
@@ -107,6 +107,15 @@ def limpar_link(url):
 
 
 MEDIDA = re.compile(r'(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?\s*cm', re.I)
+
+
+def tamanho(nome):
+    """Área aproximada pelas medidas do nome (para ordenar menor → maior)."""
+    m = MEDIDA.search(nome or '')
+    if not m:
+        return 0
+    nums = [float(g.replace(',', '.')) for g in m.groups() if g]
+    return nums[0] * (nums[1] if len(nums) > 1 else 1)
 
 
 def medidas_do_nome(nome):
@@ -356,13 +365,35 @@ def agrupar(todos, res):
         for nome in {r['nome_pdf'] for r in prods}:
             iguais = [r for r in prods if r['nome_pdf'] == nome]
             if len(iguais) > 1:
-                for r, v in zip(iguais, diferencas([r['nome'] for r in iguais])):
+                difs = diferencas([r['nome'] for r in iguais])
+                if not any(difs) and len({r['nome'] for r in iguais}) > 1:
+                    # só o tamanho muda (e medidas não aparecem): versão menor/maior
+                    por_tamanho = sorted(iguais, key=lambda r: tamanho(r['nome']))
+                    rotulos = ['versão menor'] + ['versão intermediária'] * (len(iguais) - 2) + ['versão maior']
+                    for r, rot in zip(por_tamanho, rotulos):
+                        r['nome_pdf'] = f'{nome} · {rot}'
+                    continue
+                for r, v in zip(iguais, difs):
                     # sem palavra própria (ex.: a versão "padrão"): usa a própria cor/acabamento
                     v = traduzir(v or variacao(r['nome']))
-                    if len(v) > 30:
-                        v = v[:30].rsplit(' ', 1)[0]
+                    if len(v) > 44:
+                        v = v[:44].rsplit(' ', 1)[0]
                     if v:
                         r['nome_pdf'] = f'{nome} · {v}'
+                # ainda iguais entre si (só o tamanho muda): versão menor/maior
+                for n2 in {r['nome_pdf'] for r in iguais}:
+                    gemeos = sorted([r for r in iguais if r['nome_pdf'] == n2], key=lambda r: tamanho(r['nome']))
+                    if len(gemeos) > 1:
+                        rotulos = ['versão menor'] + ['versão intermediária'] * (len(gemeos) - 2) + ['versão maior']
+                        for r, rot in zip(gemeos, rotulos):
+                            r['nome_pdf'] = f'{n2} · {rot}'
+
+    # variações do mesmo modelo ficam lado a lado (na ordem em que chegaram)
+    for t, prods in paginas.items():
+        primeira = {}
+        for i, r in enumerate(prods):
+            primeira.setdefault(r['nome_pdf'].split(' · ')[0], i)
+        prods.sort(key=lambda r: primeira[r['nome_pdf'].split(' · ')[0]])
 
     def ordem(t):
         if t in ORDEM:
