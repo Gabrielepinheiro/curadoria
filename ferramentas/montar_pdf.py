@@ -45,15 +45,35 @@ import capturar as cap  # noqa: E402
 POR_PAGINA = 6
 # Ordem das páginas — a mesma de CATEGORIES em assets/config.js.
 ORDEM = [
-    'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
-    'Cama', 'Cômoda', 'Cristaleira', 'Estante', 'Rack de TV', 'Mesa de cabeceira',
-    'Mesa de centro', 'Mesa de escritório', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
+    'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira',
+    'Cama', 'Cômoda', 'Cristaleira', 'Escritório · Mesas', 'Escritório · Cadeiras', 'Escritório · Armários', 'Estante', 'Rack de TV', 'Mesa de cabeceira',
+    'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
     'Infantil · Camas', 'Infantil · Mesas & Cadeiras', 'Infantil · Escrivaninhas', 'Infantil · Organização',
     'Infantil · Almofadas & Tapetes', 'Infantil · Decoração', 'Depósito & Organização', 'Depósito & Organização · Cestos',
 ]
+# Como cada página aparece (plural). O nome interno da categoria não muda.
+PLURAL = {
+    'Aparador & Buffet': 'Aparadores & Buffets', 'Banco & Banqueta': 'Bancos & Banquetas', 'Cadeira': 'Cadeiras',
+    'Cama': 'Camas', 'Cômoda': 'Cômodas', 'Cristaleira': 'Cristaleiras', 'Estante': 'Estantes', 'Rack de TV': 'Racks de TV',
+    'Mesa de cabeceira': 'Mesas de cabeceira', 'Mesa de centro': 'Mesas de centro', 'Mesa de jantar': 'Mesas de jantar',
+    'Mesa lateral': 'Mesas laterais', 'Carrinho': 'Carrinhos', 'Poltrona': 'Poltronas', 'Puff': 'Pufes', 'Sofá': 'Sofás',
+    'Sofá cama': 'Sofás-cama', 'Cortina': 'Cortinas', 'Espelho': 'Espelhos', 'Luminária de teto': 'Luminárias de teto',
+    'Luminária de mesa': 'Luminárias de mesa', 'Luminária de piso': 'Luminárias de piso',
+    'Luminária de parede': 'Luminárias de parede', 'Papel de parede': 'Papéis de parede', 'Tapete': 'Tapetes',
+}
+
+
+def exibir(t):
+    """Nome da página como aparece no catálogo ('Cômoda' -> 'Cômodas')."""
+    if ' · ' in t:
+        g, sub = t.split(' · ', 1)
+        return f'{PLURAL.get(g, g)} · {PLURAL.get(sub, sub)}'
+    return PLURAL.get(t, t)
+
+
 # Páginas em que as medidas aparecem no card (nas outras, não).
 COM_MEDIDAS = {'Espelho'}
 OUTROS = 'Outros'
@@ -73,7 +93,7 @@ def ler_lista(caminho):
                 atual = {'titulo': linha.lstrip('#').strip(), 'itens': []}
                 secoes.append(atual)
                 continue
-            m = re.match(r'(https?://\S+)(.*)$', linha)
+            m = re.match(r'(https?://[^\s|]+)(.*)$', linha)
             if not m:
                 continue
             extra = {}
@@ -185,7 +205,7 @@ def diferencas(nomes):
     def palavras(n):
         n = MEDIDA.sub('', n or '')
         # "mit Fach" fica junto (vira "com nicho"), senão o "mit" some como palavra comum
-        n = re.sub(r'\b(mit|m\.|com|with|avec|con)\s+(?=\w)', lambda m: m.group(1) + '~', n, flags=re.I)
+        n = re.sub(r'\b(mit|m\.|com|with|avec|con)\s+(?=[^\W\d])', lambda m: m.group(1) + '~', n, flags=re.I)
         n = re.sub(r'(?:Ø|ø|⌀)?\s*\d+(?:[.,]\d+)?\s*(?:cm|mm|l|cl|ml)\b', '', n)
         return [w for w in re.split(r'[\s/,()]+|\s[-–—]\s', n) if w and w not in '-–—']
     listas = [palavras(n) for n in nomes]
@@ -313,7 +333,7 @@ def reduzir(dados, tipo, lado=900):
 
 # ------------------------------------------------- fotos: só o móvel, fundo branco
 PASTA_FOTOS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'capturas', '.fotos')
-VERSAO_FOTOS = '5'  # mude para refazer todas as fotos
+VERSAO_FOTOS = '7'  # mude para refazer todas as fotos
 _sessao, _trava = None, threading.Lock()
 
 
@@ -371,6 +391,19 @@ def _clarear(im):
     return Image.merge('RGB', canais)
 
 
+def _eh_desenho(im):
+    """Desenho técnico/medidas: quase tudo branco puro, sem cor, só linhas."""
+    from PIL import ImageStat
+    p = im.copy()
+    p.thumbnail((240, 240))
+    h = p.convert('L').histogram()
+    n = sum(h) or 1
+    branco = sum(h[240:]) / n
+    escuro = sum(h[:150]) / (sum(h[:240]) or 1)  # linhas escuras (móvel branco só tem sombra clara)
+    saturacao = ImageStat.Stat(p.convert('HSV').split()[1]).mean[0]
+    return branco > 0.86 and saturacao < 6 and escuro > 0.2
+
+
 def _parece_estudio(im):
     """Fundo liso e claro em volta (estúdio), não um ambiente decorado."""
     media, desvio, minimo = _borda(im)
@@ -422,7 +455,9 @@ def foto_produto(r):
     arq = os.path.join(PASTA_FOTOS, chave + '.jpg')
     if os.path.exists(arq):
         with open(arq, 'rb') as f:
-            return _embutir(f.read())
+            dados = f.read()
+        r['cor'] = familia_cor(dados)
+        return _embutir(dados)
     escolhida, primeira, recortes = None, None, []
     lista = candidatas[:10]
     for i, url in enumerate(lista):
@@ -431,11 +466,12 @@ def foto_produto(r):
         except Exception:
             continue
         primeira = primeira or im
-        if _ja_branca(im):
-            escolhida = cortar_sobra(im)
-            break
-        if _quase_branca(im):
-            escolhida = cortar_sobra(_clarear(im))
+        if _ja_branca(im) or _quase_branca(im):
+            # fundo branco: só vale se ainda não há recorte bom de uma foto anterior
+            # (as últimas fotos da IKEA costumam ser o desenho técnico) e se não é desenho
+            if recortes or _eh_desenho(im):
+                continue
+            escolhida = cortar_sobra(im if _ja_branca(im) else _clarear(im))
             break
         ultima = i == len(lista) - 1
         if len(lista) > 1 and not _parece_estudio(im) and not (ultima and not recortes):
@@ -463,7 +499,47 @@ def foto_produto(r):
     os.makedirs(PASTA_FOTOS, exist_ok=True)
     with open(arq, 'wb') as f:
         f.write(dados)
+    r['cor'] = familia_cor(dados)
     return _embutir(dados)
+
+
+FAMILIAS_COR = ['branco', 'creme', 'bege', 'madeira clara', 'madeira média', 'madeira escura', 'cinza', 'preto',
+                'verde', 'azul', 'rosa', 'vermelho', 'amarelo', 'outras']
+
+
+def familia_cor(dados):
+    """Família de cor do móvel (ignora o fundo branco), para ordenar a página:
+    brancos, depois creme/bege, madeiras da clara à escura, cinzas, pretos e cores."""
+    import colorsys
+    from io import BytesIO
+    from PIL import Image
+    im = Image.open(BytesIO(dados)).convert('RGB')
+    im.thumbnail((120, 120))
+    px = [p for p in im.getdata() if min(p) < 236]  # sem o fundo branco
+    if len(px) < 30:
+        return 'branco'
+    rr, gg, bb = (sum(c[i] for c in px) / len(px) for i in range(3))
+    h, sat, v = colorsys.rgb_to_hsv(rr / 255, gg / 255, bb / 255)
+    h *= 360
+    if sat < 0.10:
+        return 'branco' if v > 0.80 else ('cinza' if v > 0.38 else 'preto')
+    if 15 <= h < 50:  # tons quentes: creme, bege e madeiras
+        if sat < 0.22:
+            return 'creme' if v > 0.80 else ('bege' if v > 0.62 else 'cinza')
+        if v > 0.70:
+            return 'bege' if sat < 0.35 else 'madeira clara'
+        return 'madeira média' if v > 0.45 else 'madeira escura'
+    if sat < 0.16:
+        return 'branco' if v > 0.80 else ('cinza' if v > 0.38 else 'preto')
+    if 50 <= h < 70:
+        return 'amarelo'
+    if 70 <= h < 170:
+        return 'verde'
+    if 170 <= h < 260:
+        return 'azul'
+    if 260 <= h < 340:
+        return 'rosa'
+    return 'vermelho' if v < 0.75 or sat > 0.5 else 'rosa'
 
 
 def _embutir(dados, lado=720, qualidade=80):
@@ -608,12 +684,14 @@ def agrupar(todos, res):
                         for r, rot in zip(gemeos, rotulos):
                             r['nome_pdf'] = f'{n2} · {rot}'
 
-    # variações do mesmo modelo ficam lado a lado (na ordem em que chegaram)
+    # ordem visual na página: por cor (brancos, beges, madeiras claras → escuras,
+    # cinzas, pretos, cores); dentro da mesma cor, variações do mesmo modelo juntas
     for t, prods in paginas.items():
         primeira = {}
         for i, r in enumerate(prods):
             primeira.setdefault(r['nome_pdf'].split(' · ')[0], i)
-        prods.sort(key=lambda r: primeira[r['nome_pdf'].split(' · ')[0]])
+        ordem_cor = lambda r: FAMILIAS_COR.index(r['cor']) if r.get('cor') in FAMILIAS_COR else 99
+        prods.sort(key=lambda r: (ordem_cor(r), primeira[r['nome_pdf'].split(' · ')[0]]))
 
     def ordem(t):
         if t in ORDEM:
@@ -755,7 +833,7 @@ def montar_web(secoes, titulo, assinatura, mostrar_valor):
     total = sum(len(s['prod']) for s in secoes)
     indice, blocos = [], []
     for i, s in enumerate(secoes, 1):
-        t = s['titulo']
+        t = exibir(s['titulo'])
         grupo, nome = (t.split(' · ', 1) if ' · ' in t else ('', t))
         ancora = f'c{i}'
         indice.append(f'<a href="#{ancora}">{e((grupo + " — " if grupo else "") + nome)}</a>')
@@ -789,16 +867,16 @@ def montar_html(secoes, titulo, subtitulo, assinatura, mostrar_valor):
     for s in secoes:
         blocos = [s['prod'][i:i + POR_PAGINA] for i in range(0, len(s['prod']), POR_PAGINA)] or [[]]
         s['ancora'] = 'sec-' + str(len(sumario) + 1)
-        sumario.append((s['titulo'], n, s['ancora']))
+        sumario.append((exibir(s['titulo']), n, s['ancora']))
         for j, bloco in enumerate(blocos):
             cards = ''.join(card(r, mostrar_valor) for r in bloco)
             ident = f' id="{s["ancora"]}"' if j == 0 else ''
             paginas.append(f'''
 <section class="pagina"{ident}>
   <div class="topo"><span>{e(assinatura)}</span><span>{e(titulo)}</span></div>
-  {titulo_pagina(s["titulo"])}
+  {titulo_pagina(exibir(s["titulo"]))}
   <div class="grade">{cards}</div>
-  <div class="rodape"><span>{e(s["titulo"].replace(" · ", " — "))}</span><span>{n}</span></div>
+  <div class="rodape"><span>{e(exibir(s["titulo"]).replace(" · ", " — "))}</span><span>{n}</span></div>
 </section>''')
             n += 1
 

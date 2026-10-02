@@ -39,6 +39,10 @@ https://loja.com/peca-x | categoria: Mesa lateral
   ficam guardadas em `capturas/.fotos`, para não refazer a cada lote.
 - **Subcategorias**: uma categoria `Grupo · Sub` (ex.: `Depósito & Organização · Cestos`)
   vira a página "Cestos", com "Depósito & Organização" pequeno acima do título.
+- **Ordem por cor** dentro de cada página: brancos, creme e bege, madeiras (da
+  clara à escura), cinzas, pretos e cores. É calculada pela foto. Os títulos
+  aparecem no plural (`PLURAL` em `montar_pdf.py`).
+- Desenho técnico (linhas escuras em fundo branco) nunca é usado como foto.
 - **Medidas** só aparecem na página Espelho (`COM_MEDIDAS` em `montar_pdf.py`).
 - Outros campos opcionais depois de `|`: `nome`, `loja`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você

@@ -116,7 +116,7 @@ https://www.ikea.com/de/de/p/tonstad-schreibtisch-eichenfurnier-40538206/
 https://www.ikea.com/de/de/p/smyga-schreibtisch-hellgrau-40480781/
 https://www.ikea.com/de/de/p/piplaerka-schreibtisch-neigbar-20579943/ | categoria: Infantil
 https://www.ikea.com/de/de/p/fryksas-aufbewahrungselement-mit-rollen-rattan-90574174/ | categoria: Aparador & Buffet
-https://www.ikea.com/de/de/p/idasen-schrank-mit-tueren-schubladen-dunkelgruen-90496398/
+https://www.ikea.com/de/de/p/idasen-schrank-mit-tueren-schubladen-dunkelgruen-90496398/ | categoria: Escritório · Armários
 https://www.ikea.com/de/de/p/snidad-korb-rattan-30394944/
 https://www.ikea.com/de/de/p/tolkning-waeschekorb-handarbeit-weide-00512618/
 https://www.ikea.com/de/de/p/nattgibba-waeschekorb-weide-handarbeit-30531936/
@@ -126,8 +126,8 @@ https://www.ikea.com/de/de/p/tolkning-waeschekorb-mit-rollen-handarbeit-salweide
 https://www.ikea.com/de/de/p/valtorp-bank-mit-stauraum-viarp-beige-braun-00562340/
 https://www.ikea.com/de/de/p/tolkning-bank-mit-fach-handarbeit-rattan-80512657/
 https://www.ikea.com/de/de/p/tolkning-hocker-mit-aufbewahrung-handarbeit-rattan-90512666/ | categoria: Banco & Banqueta
-https://www.ikea.com/de/de/p/matchspel-gamingstuhl-bomstad-hellgrau-90571528/ | categoria: Cadeira de escritório
-https://www.ikea.com/de/de/p/jaervfjaellet-drehstuhl-mit-armlehnen-grann-weiss-40521852/ | categoria: Cadeira de escritório
+https://www.ikea.com/de/de/p/matchspel-gamingstuhl-bomstad-hellgrau-90571528/ | categoria: Escritório · Cadeiras
+https://www.ikea.com/de/de/p/jaervfjaellet-drehstuhl-mit-armlehnen-grann-weiss-40521852/ | categoria: Escritório · Cadeiras
 https://www.ikea.com/de/de/p/rosentorp-stuhl-weiss-80569998/
 https://www.ikea.com/de/de/p/sundvik-kinderstuhl-blau-70628314/ | categoria: Infantil
 https://www.ikea.com/de/de/p/sundvik-kindertisch-blau-20628316/ | categoria: Infantil
@@ -146,5 +146,5 @@ https://www.ikea.com/de/de/p/skogsduva-kissen-mit-tasche-eichelfoermig-braun-205
 https://www.ikea.com/de/de/p/brummig-teppich-igelfoermig-braun-50521187/ | categoria: Infantil
 https://www.ikea.com/de/de/p/alptall-kissen-rosa-blumenfoermig-00625173/ | categoria: Infantil
 https://www.ikea.com/de/de/p/skogsduva-kissen-blumenfoermig-weiss-80576786/ | categoria: Infantil
-https://www.maisonsdumonde.com/DE/de/p/buffet-3-portes-decor-noyer-et-facades-tissu-l140-cm-jetson-M25087920.htm
-https://www.maisonsdumonde.com/DE/de/p/buffet-en-bois-recycle-18-tiroirs-miramas-M21036927.htm
+https://www.maisonsdumonde.com/DE/de/p/buffet-3-portes-decor-noyer-et-facades-tissu-l140-cm-jetson-M25087920.htm | preco: 269
+https://www.maisonsdumonde.com/DE/de/p/buffet-en-bois-recycle-18-tiroirs-miramas-M21036927.htm | preco: 939
