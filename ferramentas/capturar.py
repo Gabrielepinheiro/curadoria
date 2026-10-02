@@ -105,7 +105,10 @@ CATEGORIAS = [
     ('Área externa', ['jardim', 'exterior', 'varanda', 'jardin', 'terraza', 'outdoor', 'garten', 'giardino', 'patio']),
     # "mesa" sem tipo (só depois de todas as mesas específicas)
     ('Mesa de jantar?', ['mesa', 'table', 'tisch', 'tavolo']),
-    ('Decoração', ['vaso', 'jarra', 'castical', 'vela', 'bandeja', 'cesto', 'escultura', 'florero', 'jarron', 'vase', 'bougeoir', 'plateau', 'panier', 'deko', 'kerze', 'korb', 'candle', 'tray', 'basket', 'decor']),
+    # Subcategorias de Decoração: "Decoração · X" vira a página X, com "Decoração" em cima
+    ('Decoração · Cestos', ['cesto', 'cestos', 'cesta', 'cestas', 'korb', 'korbe', 'aufbewahrungskorb', 'waschekorb',
+                            'flechtkorb', 'panier', 'paniers', 'cesta de mimbre', 'cestino', 'basket', 'baskets']),
+    ('Decoração', ['vaso', 'jarra', 'castical', 'vela', 'bandeja', 'escultura', 'florero', 'jarron', 'vase', 'bougeoir', 'plateau', 'deko', 'kerze', 'candle', 'tray', 'decor']),
 ]
 
 

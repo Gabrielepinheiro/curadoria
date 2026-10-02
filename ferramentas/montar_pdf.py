@@ -48,7 +48,7 @@ ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
     'Cama', 'Cômoda', 'Cristaleira', 'Estante', 'Rack de TV', 'Mesa de cabeceira',
     'Mesa de centro', 'Mesa de escritório', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
-    'Área externa', 'Cortina', 'Decoração', 'Espelho',
+    'Área externa', 'Cortina', 'Decoração', 'Decoração · Cestos', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
     'Infantil', 'Depósito & Organização',
@@ -610,6 +610,9 @@ body { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; -webkit-print-c
 .rodape { margin-top: auto; padding-top: 2.6mm; border-top: .25mm solid var(--linha); }
 h1 { font-family: 'EB Garamond', Georgia, serif; font-weight: 400; font-size: 28pt;
   letter-spacing: .01em; text-align: center; margin: 8mm 0 7mm; }
+.grupo { text-align: center; font-size: 7.5pt; letter-spacing: .32em; text-transform: uppercase;
+  color: var(--bronze); margin: 7mm 0 0; }
+h1.sub { margin-top: 2mm; }
 .grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 6mm 7mm; flex: 1; min-height: 0; margin-bottom: 5mm; }
 .card { border: .25mm solid var(--linha); display: flex; flex-direction: column; min-height: 0;
@@ -670,6 +673,15 @@ def card(r, mostrar_valor):
             + '</div></a>')
 
 
+def titulo_pagina(t):
+    """'Decoração · Cestos' -> 'Cestos' com 'Decoração' pequeno em cima."""
+    e = html.escape
+    if ' · ' in t:
+        grupo, sub = t.split(' · ', 1)
+        return f'<p class="grupo">{e(grupo)}</p><h1 class="sub">{e(sub)}</h1>'
+    return f'<h1>{e(t)}</h1>'
+
+
 def montar_html(secoes, titulo, subtitulo, assinatura, mostrar_valor):
     e = html.escape
     paginas, sumario = [], []
@@ -684,9 +696,9 @@ def montar_html(secoes, titulo, subtitulo, assinatura, mostrar_valor):
             paginas.append(f'''
 <section class="pagina"{ident}>
   <div class="topo"><span>{e(assinatura)}</span><span>{e(titulo)}</span></div>
-  <h1>{e(s["titulo"])}</h1>
+  {titulo_pagina(s["titulo"])}
   <div class="grade">{cards}</div>
-  <div class="rodape"><span>{e(s["titulo"])}</span><span>{n}</span></div>
+  <div class="rodape"><span>{e(s["titulo"].replace(" · ", " — "))}</span><span>{n}</span></div>
 </section>''')
             n += 1
 
@@ -698,7 +710,7 @@ def montar_html(secoes, titulo, subtitulo, assinatura, mostrar_valor):
   <p class="sub">{e(subtitulo)}</p>
   <p class="assina">{e(assinatura)}</p>
 </section>'''
-    itens = ''.join(f'<a href="#{a}"><span>{e(t)}</span><span>{p}</span></a>' for t, p, a in sumario)
+    itens = ''.join(f'<a href="#{a}"><span>{e(t.replace(" · ", " — "))}</span><span>{p}</span></a>' for t, p, a in sumario)
     pag_sumario = f'''
 <section class="pagina">
   <div class="topo"><span>{e(assinatura)}</span><span>{e(titulo)}</span></div>
