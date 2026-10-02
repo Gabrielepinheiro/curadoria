@@ -46,12 +46,12 @@ POR_PAGINA = 6
 # Ordem das páginas — a mesma de CATEGORIES em assets/config.js.
 ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
-    'Cama', 'Cômoda', 'Cristaleira', 'Escrivaninha', 'Estante', 'Rack de TV', 'Mesa de cabeceira',
-    'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
+    'Cama', 'Cômoda', 'Cristaleira', 'Estante', 'Rack de TV', 'Mesa de cabeceira',
+    'Mesa de centro', 'Mesa de escritório', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
-    'Infantil', 'Depósito',
+    'Infantil', 'Depósito & Organização',
 ]
 # Páginas em que as medidas aparecem no card (nas outras, não).
 COM_MEDIDAS = {'Espelho'}
@@ -549,9 +549,13 @@ def agrupar(todos, res):
                     for r, rot in zip(por_tamanho, rotulos):
                         r['nome_pdf'] = f'{nome} · {rot}'
                     continue
+                trad = [traduzir(v) for v in difs]
                 for r, v in zip(iguais, difs):
                     # sem palavra própria (ex.: a versão "padrão"): usa a própria cor/acabamento
                     v = traduzir(v or variacao(r['nome']))
+                    # "armário" ao lado de "armário pinho claro": acrescenta a própria cor
+                    if v and any(o != v and o.startswith(v + ' ') for o in trad):
+                        v = traduzir(v + ' ' + variacao(r['nome']))
                     if len(v) > 48:
                         v = v[:48].rsplit(' ', 1)[0]
                     if v:

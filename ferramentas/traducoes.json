@@ -133,5 +133,11 @@
  "regale": "estantes",
  "elem": "módulos",
  "elem.": "módulos",
- "servierwagen": "carrinho"
+ "servierwagen": "carrinho",
+ "boxen": "caixas",
+ "box": "caixa",
+ "neigbar": "inclinável",
+ "ausziehtisch": "extensível",
+ "tisch": "mesa",
+ "schreibtisch": "escrivaninha"
 }
