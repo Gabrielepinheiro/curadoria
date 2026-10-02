@@ -423,6 +423,10 @@ def capturar(url, lojas):
         r['lojaId'] = (info or {}).get('id', '')
         r['regiao'] = (info or {}).get('regiao') or regiao_por('', dom)
         r['nome'] = nome_do_link(url)
+        if 'maisonsdumonde.' in url:  # o modelo é a última palavra do link: ...-jetson-M25087920.htm
+            m = re.search(r'-([a-z]+)-M\d+\.htm', url)
+            if m:
+                r['modelo'] = m.group(1).capitalize()
         r['categoria'] = sugerir_categoria(url).rstrip('?')
         return r
 

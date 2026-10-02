@@ -867,6 +867,10 @@ def main():
         if r.get('eh_lista'):
             fora.append(f"link de lista, não de produto: {r['link']}")
             continue
+        if not r.get('img64'):
+            # card sem foto não entra no catálogo: completar com "| foto: link | preco: valor"
+            fora.append(f"sem foto (loja bloqueou ou não publicou): {r['link']}")
+            continue
         # repetido = o MESMO produto: mesmo código da loja, ou mesmo nome
         # completo E mesma foto. Outra cor/tecido/tamanho não é repetido.
         chaves = [k for k in ((r['loja'], 'ref', r['referencia']) if r['referencia'] else None,
