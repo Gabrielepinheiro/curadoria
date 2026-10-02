@@ -77,8 +77,49 @@ def ler_lista(caminho):
             if atual is None:
                 atual = {'titulo': '', 'itens': []}
                 secoes.append(atual)
-            atual['itens'].append({'url': m.group(1), 'extra': extra})
+            atual['itens'].append({'url': limpar_link(m.group(1)), 'extra': extra})
+    # mesmo link duas vezes (ex.: com e sem "#content") entra uma vez só
+    vistos = set()
+    for s in secoes:
+        unicos = []
+        for it in s['itens']:
+            if it['url'] in vistos:
+                REPETIDOS.append(it['url'])
+                continue
+            vistos.add(it['url'])
+            unicos.append(it)
+        s['itens'] = unicos
     return secoes
+
+
+REPETIDOS = []
+
+
+def limpar_link(url):
+    """Tira #âncora e parâmetros de rastreio (utm, gclid...) do link."""
+    from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+    u = urlsplit(url.rstrip('.,;)'))
+    q = [(k, v) for k, v in parse_qsl(u.query, keep_blank_values=True)
+         if not re.match(r'(utm_|gclid|fbclid|mc_|ref$|srsltid)', k, re.I)]
+    return urlunsplit((u.scheme, u.netloc.lower(), u.path, urlencode(q), ''))
+
+
+MEDIDA = re.compile(r'(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?\s*cm', re.I)
+
+
+def medidas_do_nome(nome):
+    """'... 160x200 cm' -> '160 × 200 cm'"""
+    m = MEDIDA.search(nome or '')
+    return ' × '.join(g for g in m.groups() if g) + ' cm' if m else ''
+
+
+def variacao(nome):
+    """'RAMNEFJÄLL Bettgestell - Idekulla beige/Luröy 160x200 cm' -> 'Idekulla beige'"""
+    partes = re.split(r'\s+[-–—]\s+', nome or '', maxsplit=1)
+    if len(partes) < 2:
+        return ''
+    v = MEDIDA.sub('', partes[1]).split('/')[0].split(',')[0].strip()
+    return v[:24]
 
 
 def nome_curto(nome, secao=''):
@@ -108,6 +149,26 @@ def nome_curto(nome, secao=''):
     return n[:1].upper() + n[1:]
 
 
+def cortar_sobra(im, folga=0.04):
+    """Corta a margem branca/clara em volta do móvel (fotos de loja
+    costumam ter muita sobra) e deixa uma folga pequena."""
+    from PIL import ImageChops, Image
+    cinza = im.convert('L')
+    fundo = cinza.getpixel((0, 0))
+    if fundo < 225:  # foto de ambiente, não fundo claro: não mexe
+        return im
+    dif = ImageChops.difference(cinza, Image.new('L', im.size, fundo)).point(lambda v: 255 if v > 14 else 0)
+    caixa = dif.getbbox()
+    if not caixa:
+        return im
+    l, t, r, b = caixa
+    f = int(max(r - l, b - t) * folga)
+    l, t, r, b = max(0, l - f), max(0, t - f), min(im.width, r + f), min(im.height, b + f)
+    novo = Image.new('RGB', (r - l, b - t), (fundo,) * 3)
+    novo.paste(im.crop((l, t, r, b)))
+    return novo
+
+
 def reduzir(dados, tipo, lado=900):
     """Deixa o PDF leve: foto até 900px, JPEG, fundo branco.
     Sem o Pillow instalado (pip install pillow), usa a foto original."""
@@ -123,6 +184,7 @@ def reduzir(dados, tipo, lado=900):
             im = fundo
         else:
             im = im.convert('RGB')
+        im = cortar_sobra(im)
         out = BytesIO()
         im.save(out, 'JPEG', quality=84, optimize=True)
         return out.getvalue(), 'image/jpeg'
@@ -162,7 +224,7 @@ def preparar(item, lojas, secao=''):
         r['faixaPreco'] = cap.faixa(r['preco'], r['regiao'])
     if x.get('faixa'):
         r['faixaPreco'] = int(x['faixa'])
-    r['medidas'] = x.get('medidas', '')
+    r['medidas'] = x.get('medidas') or medidas_do_nome(r['nome'])
     r['detalhe'] = x.get('detalhe', '')
     r['img64'] = baixar_imagem(r['imagem'])
     if r['imagem'] and not r['img64']:
@@ -197,6 +259,16 @@ def agrupar(todos, res):
             titulo = OUTROS
         paginas.setdefault(titulo, []).append(r)
         r['nome_pdf'] = it['extra'].get('nome') or nome_curto(r['nome'], titulo)
+
+    # mesmo modelo em cores/tecidos diferentes: acrescenta a variação
+    for prods in paginas.values():
+        for nome in {r['nome_pdf'] for r in prods}:
+            iguais = [r for r in prods if r['nome_pdf'] == nome]
+            if len(iguais) > 1:
+                for r in iguais:
+                    v = variacao(r['nome'])
+                    if v:
+                        r['nome_pdf'] = f'{nome} · {v}'
 
     def ordem(t):
         if t in ORDEM:
@@ -359,7 +431,28 @@ def main():
     todos = [(s, it) for s in secoes for it in s['itens']]
     with ThreadPoolExecutor(max_workers=6) as ex:
         res = list(ex.map(lambda p: preparar(p[1], lojas, p[0]['titulo']), todos))
-    secoes = agrupar(todos, res)
+    # fora do PDF: links de lista/categoria e produtos repetidos
+    # (mesmo produto com links diferentes: mesma loja + mesmo nome ou foto)
+    fora, ja = [], {}
+    filtrados = []
+    for par, r in zip(todos, res):
+        if r.get('eh_lista'):
+            fora.append(f"link de lista, não de produto: {r['link']}")
+            continue
+        chaves = [k for k in ((r['loja'], cap.sem_acento(r['nome'])) if r['nome'] else None,
+                              ('img', r['imagem']) if r['imagem'] else None) if k]
+        dup = next((ja[k] for k in chaves if k in ja), None)
+        if dup:
+            fora.append(f"repetido: {r['link']}  (igual a {dup})")
+            continue
+        for k in chaves:
+            ja[k] = r['link']
+        filtrados.append((par, r))
+    fora += [f'link repetido na lista: {u}' for u in REPETIDOS]
+    secoes = agrupar([p for p, _ in filtrados], [r for _, r in filtrados])
+    total = len(filtrados)
+    for f_ in fora:
+        print('✗ fora do PDF —', f_)
 
     avisos = []
     for s in secoes:
@@ -374,7 +467,7 @@ def main():
     with open(arq_html, 'w', encoding='utf-8') as f:
         f.write(pagina)
     with open(os.path.join(saida, 'conferir.txt'), 'w', encoding='utf-8') as f:
-        f.write('\n'.join(avisos) or 'Tudo completo.')
+        f.write('\n'.join(avisos + [''] + ['FORA DO PDF: ' + x for x in fora]).strip() or 'Tudo completo.')
     arq_pdf = os.path.join(saida, 'curadoria.pdf')
     subprocess.run(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pdf.mjs'), arq_html, arq_pdf], check=True)
     print(f'\n{total} produtos · {len(avisos)} para conferir\nPDF: {arq_pdf}')

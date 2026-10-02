@@ -19,6 +19,13 @@ https://loja.com/peca-x | categoria: Mesa lateral
   categoria vai para a página **Outros**.
 - Para corrigir, escreva `| categoria: Mesa lateral` depois do link. Também
   dá para agrupar à mão com uma linha `# Título` antes dos links.
+- **Nada se repete:** o mesmo link duas vezes (com ou sem `#content`), ou o
+  mesmo produto por links diferentes, entra uma vez só. Links de lista ou de
+  categoria (ex.: `/cat/betten`) ficam de fora. Tudo isso fica anotado em
+  `conferir.txt`.
+- O mesmo modelo em cores diferentes ganha a variação no nome ("Ramnefjäll ·
+  Idekulla beige"). Medidas escritas no nome da loja (160x200 cm) aparecem
+  sozinhas, e a margem branca das fotos é cortada.
 - Outros campos opcionais depois de `|`: `nome`, `loja`, `medidas`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você
   escrever vale mais que o capturado.

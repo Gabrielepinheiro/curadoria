@@ -60,7 +60,7 @@ CATEGORIAS = [
     ('Poltrona', ['poltrona', 'butaca', 'sillon', 'fauteuil', 'sessel', 'armchair', 'lounge chair']),
     ('Sofá', ['sofa', 'canape', 'divano', 'couch', 'chaise longue', 'chaiselongue']),
     ('Cadeira', ['cadeira', 'silla', 'chaise', 'stuhl', 'sedia', 'chair']),
-    ('Cama', ['cama', 'lit ', 'bett', 'letto', 'bed frame', 'cabeceira', 'headboard']),
+    ('Cama', ['cama', 'lit ', 'bett', 'bettgestell', 'polsterbett', 'bettrahmen', 'boxspringbett', 'letto', 'bed frame', 'cabeceira', 'headboard']),
     ('Cômoda', ['comoda', 'commode', 'kommode', 'cassettiera', 'chest of drawers', 'dresser']),
     ('Escrivaninha', ['escrivaninha', 'escritorio', 'secretaria', 'bureau', 'schreibtisch', 'scrivania', 'desk']),
     ('Estante', ['estante', 'prateleira', 'estanteria', 'libreria', 'etagere', 'bibliotheque', 'regal', 'bookcase', 'shelf', 'shelving']),
@@ -389,6 +389,8 @@ def capturar(url, lojas):
     if r['nome'] and r['loja']:
         r['nome'] = re.sub(r'\s*[|\-–—]\s*' + re.escape(r['loja']) + r'.*$', '', r['nome'], flags=re.I).strip()
 
+    r['eh_lista'] = (not prod and any(o for o in nos if eh_tipo(o, 'ItemList') or eh_tipo(o, 'CollectionPage'))) \
+        or bool(re.search(r'/(cat|category|categoria|kategorie|c)/', urlparse(final).path)) and not prod
     if not prod:
         r['conferir'].append('loja não publica ficha do produto')
     if not r['nome']:
