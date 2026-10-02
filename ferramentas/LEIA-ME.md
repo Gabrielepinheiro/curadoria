@@ -2,21 +2,26 @@
 
 ## O jeito principal: `montar_pdf.py`
 
-Você escreve uma lista simples (ou manda para o Claude no chat):
+Você cola os links (ou manda para o Claude no chat), **um por linha, em
+qualquer ordem**:
 
 ```
-# Sofás
 https://loja.com/sofa-lago
-https://loja.com/sofa-dara | nome: Dara | medidas: 100 × 220 cm | detalhe: capa algodão off
-
-# Mesa de cabeceira
-https://loja.com/mesa-pampa
+https://loja.com/cadeira-ana
+https://loja.com/mesa-pampa | medidas: 45 × 40 cm | detalhe: carvalho maciço
+https://loja.com/peca-x | categoria: Mesa lateral
 ```
 
-- `# Título` abre uma seção, que vira o título da página.
-- Depois do link, com `|`, você pode escrever: `nome`, `loja`, `medidas`,
-  `detalhe`, `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que
-  você escrever vale mais que o capturado.
+- **Cada produto vai sozinho para a página da sua categoria** (Cadeira, Mesa de
+  jantar, Poltrona…). As páginas seguem a ordem das categorias da curadoria.
+- A categoria é descoberta pelo nome do produto e, se não der, pelo link. Uma
+  "mesa" sem tipo vai para Mesa de jantar marcada para conferir. Produto sem
+  categoria vai para a página **Outros**.
+- Para corrigir, escreva `| categoria: Mesa lateral` depois do link. Também
+  dá para agrupar à mão com uma linha `# Título` antes dos links.
+- Outros campos opcionais depois de `|`: `nome`, `loja`, `medidas`, `detalhe`,
+  `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você
+  escrever vale mais que o capturado.
 
 ```bash
 python3 ferramentas/montar_pdf.py lista.txt
@@ -29,8 +34,8 @@ Sai em `capturas/<data>/`:
 - **curadoria.html**: a mesma coisa, para ajustes;
 - **conferir.txt**: o que faltou capturar.
 
-Por padrão, o card mostra só a faixa: € até 100 · €€ 100–400 · €€€ 400–600 ·
-€€€€ 600–800 · €€€€€ acima de 800 (ajustável em `FAIXAS`, no `capturar.py`).
+Por padrão, o card mostra só a faixa: € até 150 · €€ 150–400 · €€€ 400–800 ·
+€€€€ 800–1.500 · €€€€€ acima de 1.500 (ajustável em `FAIXAS`, no `capturar.py`).
 Com `--com-valor`, mostra também o valor aproximado (≈ € 199). Fontes: Cormorant Garamond e Jost, que vão
 embutidas no arquivo (`fontes/`). Requisitos: Python 3, Node com Playwright
 (Chromium) e, opcionalmente, o Pillow, para deixar o PDF leve.

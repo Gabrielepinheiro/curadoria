@@ -2,18 +2,19 @@
 # =============================================================
 #  montar_pdf.py  —  Da lista de links ao PDF da curadoria.
 #
-#  Lê um arquivo de texto assim:
+#  Lê um arquivo de texto com UM LINK POR LINHA, em qualquer ordem:
 #
-#      # Sofás
 #      https://loja.com/sofa-lago
+#      https://loja.com/cadeira-ana
 #      https://loja.com/sofa-dara | nome: Dara | medidas: 100 × 220 cm
 #
-#      # Mesa de cabeceira
-#      https://...
-#
-#  • Cada "# Título" abre uma seção (vira o título da página).
+#  • Cada produto vai SOZINHO para a página da sua categoria
+#    (Sofá, Cadeira, Mesa de jantar…), na ordem da curadoria.
+#  • Errou a categoria? Escreva "| categoria: Mesa lateral".
+#    Ou agrupe à mão com uma linha "# Título" antes dos links.
 #  • Depois do link, opcional, com "|": nome, loja, medidas,
-#    detalhe, preco (ex.: 1290), faixa (1 a 5), foto (link da imagem).
+#    detalhe, preco (ex.: 1290), faixa (1 a 5), foto (link da imagem),
+#    categoria.
 #    O que você escrever aqui vale mais que o capturado.
 #
 #  Gera, na pasta de saída: curadoria.pdf (A4 vertical, 6 por
@@ -40,6 +41,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import capturar as cap  # noqa: E402
 
 POR_PAGINA = 6
+# Ordem das páginas — a mesma de CATEGORIES em assets/config.js.
+ORDEM = [
+    'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
+    'Cama', 'Cômoda', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
+    'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Poltrona', 'Puff', 'Sofá',
+    'Área externa', 'Cortina', 'Decoração', 'Espelho', 'Iluminação',
+    'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
+]
+OUTROS = 'Outros'
 SIMB = {'europa': '€', 'brasil': 'R$'}
 MOEDA = {'EUR': '€', 'BRL': 'R$', 'GBP': '£', 'USD': '$', 'CHF': 'CHF'}
 
@@ -142,7 +152,7 @@ def preparar(item, lojas, secao=''):
     if x.get('nome'):
         r['nome_pdf'] = x['nome']
     else:
-        r['nome_pdf'] = nome_curto(r['nome'], secao)
+        r['nome_pdf'] = ''
     if x.get('loja'):
         r['loja'] = x['loja']
     if x.get('foto'):
@@ -158,6 +168,41 @@ def preparar(item, lojas, secao=''):
     if r['imagem'] and not r['img64']:
         r['conferir'].append('foto não baixou')
     return r
+
+
+# --------------------------------------------------------- páginas
+def categoria_oficial(texto):
+    """'mesa lateral' / 'Mesas laterais' -> 'Mesa lateral' (ou o texto como veio)."""
+    t = cap.sem_acento(texto).strip()
+    for c in ORDEM:
+        if cap.sem_acento(c) == t:
+            return c
+    for c in ORDEM:  # plural simples: "Cadeiras", "Sofás", "Mesas de jantar"
+        if re.sub(r's\b', '', t) == re.sub(r's\b', '', cap.sem_acento(c)):
+            return c
+    return texto.strip()
+
+
+def agrupar(todos, res):
+    """Cada produto vai para a página da sua categoria. Vale, nesta ordem:
+    '| categoria: X' > '# Título' da lista > categoria detectada."""
+    paginas = {}
+    for (s, it), r in zip(todos, res):
+        escolhida = it['extra'].get('categoria') or s['titulo'] or r['categoria']
+        if escolhida:
+            titulo = categoria_oficial(escolhida)
+            if it['extra'].get('categoria') or s['titulo']:
+                r['conferir'] = [c for c in r['conferir'] if not c.startswith('categoria')]
+        else:
+            titulo = OUTROS
+        paginas.setdefault(titulo, []).append(r)
+        r['nome_pdf'] = it['extra'].get('nome') or nome_curto(r['nome'], titulo)
+
+    def ordem(t):
+        if t in ORDEM:
+            return (0, ORDEM.index(t))
+        return (2, 0) if t == OUTROS else (1, 0)
+    return [{'titulo': t, 'prod': paginas[t]} for t in sorted(paginas, key=ordem)]
 
 
 # ------------------------------------------------------------- HTML
@@ -314,10 +359,7 @@ def main():
     todos = [(s, it) for s in secoes for it in s['itens']]
     with ThreadPoolExecutor(max_workers=6) as ex:
         res = list(ex.map(lambda p: preparar(p[1], lojas, p[0]['titulo']), todos))
-    for s in secoes:
-        s['prod'] = []
-    for (s, _), r in zip(todos, res):
-        s['prod'].append(r)
+    secoes = agrupar(todos, res)
 
     avisos = []
     for s in secoes:

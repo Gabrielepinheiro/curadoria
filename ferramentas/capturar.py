@@ -42,7 +42,7 @@ UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
 # Faixas de preço — espelho de PRICE_BANDS em assets/config.js.
 # Limite SUPERIOR de cada faixa 1..4 (acima do último = faixa 5).
 FAIXAS = {
-    'europa': [100, 400, 600, 800],
+    'europa': [150, 400, 800, 1500],
     'brasil': [800, 2000, 4000, 6000],
 }
 SIMBOLO = {'europa': '€', 'brasil': 'R$'}
@@ -54,7 +54,7 @@ CATEGORIAS = [
     ('Mesa de cabeceira', ['mesa de cabeceira', 'criado-mudo', 'criado mudo', 'mesita de noche', 'table de chevet', 'nachttisch', 'comodino', 'bedside', 'nightstand']),
     ('Mesa de centro', ['mesa de centro', 'table basse', 'couchtisch', 'tavolino da salotto', 'coffee table']),
     ('Mesa de jantar', ['mesa de jantar', 'mesa de comedor', 'table a manger', 'esstisch', 'tavolo da pranzo', 'dining table']),
-    ('Mesa lateral', ['mesa lateral', 'mesa de apoio', 'mesa auxiliar', "table d'appoint", 'table d appoint', 'beistelltisch', 'tavolino', 'side table']),
+    ('Mesa lateral', ['mesa lateral', 'mesa de apoio', 'mesa tabuleiro', 'mesa bandeja', 'tray table', 'mesa auxiliar', "table d'appoint", 'table d appoint', 'beistelltisch', 'tavolino', 'side table']),
     ('Aparador & Buffet', ['aparador', 'buffet', 'bufete', 'consola', 'console', 'sideboard', 'kommode sideboard', 'credenza', 'enfilade', 'anrichte']),
     ('Banco & Banqueta', ['banqueta', 'banquinho', 'banco', 'taburete', 'tabouret', 'banc ', 'hocker', 'sitzbank', 'sgabello', 'panca', 'stool', 'bench']),
     ('Poltrona', ['poltrona', 'butaca', 'sillon', 'fauteuil', 'sessel', 'armchair', 'lounge chair']),
@@ -66,13 +66,15 @@ CATEGORIAS = [
     ('Estante', ['estante', 'prateleira', 'estanteria', 'libreria', 'etagere', 'bibliotheque', 'regal', 'bookcase', 'shelf', 'shelving']),
     ('Puff', ['puff', 'pouf', 'otomana', 'ottoman']),
     ('Espelho', ['espelho', 'espejo', 'miroir', 'spiegel', 'specchio', 'mirror']),
-    ('Iluminação', ['luminaria', 'candeeiro', 'pendente', 'lustre', 'lampada', 'lampara', 'lampe', 'leuchte', 'lampada', 'lampadario', 'lamp', 'light', 'aplique', 'applique', 'suspension']),
+    ('Iluminação', ['luminaria', 'candeeiro', 'pendente', 'lustre', 'lampada', 'lampara', 'lampe', 'leuchte', 'lampadario', 'lamp', 'aplique', 'applique', 'suspension']),
     ('Tapete', ['tapete', 'alfombra', 'tapis', 'teppich', 'tappeto', 'rug', 'carpet']),
     ('Cortina', ['cortina', 'cortinado', 'rideau', 'vorhang', 'gardine', 'tenda', 'curtain']),
     ('Papel de parede', ['papel de parede', 'papel pintado', 'papier peint', 'tapete wand', 'tapete vlies', 'carta da parati', 'wallpaper']),
     ('Quadros & Arte', ['quadro', 'gravura', 'poster', 'cuadro', 'lamina', 'tableau', 'affiche', 'bild', 'kunstdruck', 'stampa', 'print', 'wall art', 'artwork']),
     ('Roupa de cama & Têxtil', ['roupa de cama', 'lencol', 'edredom', 'edredao', 'fronha', 'manta', 'almofada', 'capa de almofada', 'toalha', 'colcha', 'ropa de cama', 'sabana', 'cojin', 'linge de lit', 'housse', 'drap', 'coussin', 'plaid', 'bettwasche', 'kissen', 'decke', 'biancheria', 'cuscino', 'bedding', 'duvet', 'cushion', 'throw', 'pillow', 'towel']),
     ('Área externa', ['jardim', 'exterior', 'varanda', 'jardin', 'terraza', 'outdoor', 'garten', 'giardino', 'patio']),
+    # "mesa" sem tipo (só depois de todas as mesas específicas)
+    ('Mesa de jantar?', ['mesa', 'table', 'tisch', 'tavolo']),
     ('Decoração', ['vaso', 'jarra', 'castical', 'vela', 'bandeja', 'cesto', 'escultura', 'florero', 'jarron', 'vase', 'bougeoir', 'plateau', 'panier', 'deko', 'kerze', 'korb', 'candle', 'tray', 'basket', 'decor']),
 ]
 
@@ -329,7 +331,7 @@ def capturar(url, lojas):
         r['lojaId'] = (info or {}).get('id', '')
         r['regiao'] = (info or {}).get('regiao') or regiao_por('', dom)
         r['nome'] = nome_do_link(url)
-        r['categoria'] = sugerir_categoria(url)
+        r['categoria'] = sugerir_categoria(url).rstrip('?')
         return r
 
     p = Leitor()
@@ -370,7 +372,17 @@ def capturar(url, lojas):
     r['lojaId'] = (info or {}).get('id', '')
     r['regiao'] = (info or {}).get('regiao') or regiao_por(r['moeda'], dom)
     r['faixaPreco'] = faixa(r['preco'], r['regiao'])
-    r['categoria'] = sugerir_categoria(r['nome'], urlparse(final).path)
+    # categoria: primeiro pelo nome; se não der, pelo link; por fim pela
+    # trilha da loja (ex.: "Casa > Móveis > Cadeiras") e categoria da ficha
+    trilha = [limpa((x.get('item') or {}).get('name') if isinstance(x.get('item'), dict) else x.get('name'))
+              for o in nos if eh_tipo(o, 'BreadcrumbList')
+              for x in (o.get('itemListElement') or []) if isinstance(x, dict)]
+    ficha_cat = limpa((prod or {}).get('category') if not isinstance((prod or {}).get('category'), dict) else '')
+    palpites = [sugerir_categoria(t) for t in (r['nome'], urlparse(final).path,
+                                                 ' '.join(reversed(trilha)), ficha_cat)]
+    palpites = [c for c in palpites if c]
+    # um palpite específico (ex.: "Mesa de jantar" pela trilha) vence o genérico "mesa"
+    r['categoria'] = next((c for c in palpites if not c.endswith('?')), palpites[0] if palpites else '')
     r['link'] = url
 
     # nome sem o "| Loja" do fim do <title>
@@ -385,6 +397,9 @@ def capturar(url, lojas):
         r['conferir'].append('sem foto')
     if not r['preco']:
         r['conferir'].append('sem preço')
+    if r['categoria'].endswith('?'):  # "mesa" sem tipo: palpite, confirmar
+        r['categoria'] = r['categoria'].rstrip('?')
+        r['conferir'].append('categoria (confirmar tipo de mesa)')
     if not r['categoria']:
         r['conferir'].append('categoria')
     if not info:
