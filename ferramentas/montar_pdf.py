@@ -46,7 +46,7 @@ POR_PAGINA = 6
 ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
     'Cama', 'Cômoda', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
-    'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
+    'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',

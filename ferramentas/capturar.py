@@ -69,6 +69,8 @@ CATEGORIAS = [
     ('Mesa lateral', ['mesa lateral', 'mesa de apoio', 'ablagetisch', 'mesa tabuleiro', 'mesa bandeja', 'tray table', 'mesa auxiliar', "table d'appoint", 'table d appoint', 'beistelltisch', 'tavolino', 'side table']),
     ('Sofá cama', ['sofa cama', 'sofa-cama', 'sofacama', 'schlafsofa', 'schlafcouch', 'bettsofa', 'canape convertible',
                    'canape lit', 'sofa convertible', 'sofa lit', 'divano letto', 'sofa bed', 'sleeper sofa']),
+    ('Carrinho', ['carrinho', 'carrinho de apoio', 'carrinho bar', 'servierwagen', 'rollwagen', 'teewagen', 'barwagen',
+                  'carrito', 'desserte', 'trolley', 'bar cart', 'serving cart', 'carrello']),
     ('Aparador & Buffet', ['aparador', 'schrankkombination', 'konsolentisch', 'mesa consola', 'console table', 'schrank', 'armario baixo', 'mueble bajo', 'buffet', 'bufete', 'consola', 'console', 'sideboard', 'kommode sideboard', 'credenza', 'enfilade', 'anrichte']),
     ('Banco & Banqueta', ['banqueta', 'banquinho', 'banco', 'taburete', 'tabouret', 'banc ', 'hocker', 'sitzbank', 'sgabello', 'panca', 'stool', 'bench']),
     ('Poltrona', ['poltrona', 'butaca', 'sillon', 'fauteuil', 'sessel', 'armchair', 'lounge chair']),
