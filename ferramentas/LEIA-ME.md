@@ -2,6 +2,11 @@
 
 ## O jeito principal: `montar_pdf.py`
 
+> A lista da curadoria fica em **`curadoria/lista.txt`**. Ela é guardada no
+> repositório, e cada novo lote de links é acrescentado no fim.
+>
+> `python3 ferramentas/montar_pdf.py curadoria/lista.txt`
+
 Você cola os links (ou manda para o Claude no chat), **um por linha, em
 qualquer ordem**:
 
@@ -24,8 +29,11 @@ https://loja.com/peca-x | categoria: Mesa lateral
   categoria (ex.: `/cat/betten`) ficam de fora. Tudo isso fica anotado em
   `conferir.txt`.
 - O mesmo modelo em cores diferentes ganha a variação no nome ("Ramnefjäll ·
-  Idekulla beige", "Nymåne · 4 Spots"). Medidas não aparecem no PDF. A margem
-  branca das fotos é cortada.
+  Idekulla beige", "Fågelfjället · 4 gavetas marfim"), com cores e acabamentos
+  traduzidos (`traducoes.json`). Sklum: cada cor (`?id_c=`) traz a própria
+  foto e o próprio preço. Medidas não aparecem no PDF.
+- Fotos: a margem branca é cortada. Fotos verticais (de ambiente ou estúdio)
+  são enquadradas na horizontal, centralizadas no móvel.
 - Outros campos opcionais depois de `|`: `nome`, `loja`, `detalhe`,
   `preco`, `faixa` (1 a 5) e `foto` (link de outra imagem). O que você
   escrever vale mais que o capturado.

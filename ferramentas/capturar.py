@@ -32,7 +32,7 @@ import unicodedata
 import urllib.request
 import zlib
 from html.parser import HTMLParser
-from urllib.parse import urljoin, urlparse
+from urllib.parse import parse_qs, urljoin, urlparse
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 
@@ -66,11 +66,14 @@ CATEGORIAS = [
     ('Mesa de cabeceira', ['mesa de cabeceira', 'criado-mudo', 'criado mudo', 'mesita de noche', 'table de chevet', 'nachttisch', 'comodino', 'bedside', 'nightstand']),
     ('Mesa de centro', ['mesa de centro', 'table basse', 'couchtisch', 'tavolino da salotto', 'coffee table']),
     ('Mesa de jantar', ['mesa de jantar', 'mesa de comedor', 'table a manger', 'esstisch', 'tavolo da pranzo', 'dining table']),
-    ('Mesa lateral', ['mesa lateral', 'mesa de apoio', 'mesa tabuleiro', 'mesa bandeja', 'tray table', 'mesa auxiliar', "table d'appoint", 'table d appoint', 'beistelltisch', 'tavolino', 'side table']),
-    ('Aparador & Buffet', ['aparador', 'buffet', 'bufete', 'consola', 'console', 'sideboard', 'kommode sideboard', 'credenza', 'enfilade', 'anrichte']),
+    ('Mesa lateral', ['mesa lateral', 'mesa de apoio', 'ablagetisch', 'mesa tabuleiro', 'mesa bandeja', 'tray table', 'mesa auxiliar', "table d'appoint", 'table d appoint', 'beistelltisch', 'tavolino', 'side table']),
+    ('Sofá cama', ['sofa cama', 'sofa-cama', 'sofacama', 'schlafsofa', 'schlafcouch', 'bettsofa', 'canape convertible',
+                   'canape lit', 'sofa convertible', 'sofa lit', 'divano letto', 'sofa bed', 'sleeper sofa']),
+    ('Aparador & Buffet', ['aparador', 'schrankkombination', 'konsolentisch', 'mesa consola', 'console table', 'schrank', 'armario baixo', 'mueble bajo', 'buffet', 'bufete', 'consola', 'console', 'sideboard', 'kommode sideboard', 'credenza', 'enfilade', 'anrichte']),
     ('Banco & Banqueta', ['banqueta', 'banquinho', 'banco', 'taburete', 'tabouret', 'banc ', 'hocker', 'sitzbank', 'sgabello', 'panca', 'stool', 'bench']),
     ('Poltrona', ['poltrona', 'butaca', 'sillon', 'fauteuil', 'sessel', 'armchair', 'lounge chair']),
-    ('Sofá', ['sofa', 'canape', 'divano', 'couch', 'chaise longue', 'chaiselongue']),
+    ('Sofá', ['sofa', 'canape', 'divano', 'couch', 'chaise longue', 'chaiselongue', 'modulsofa', 'ecksofa',
+              'polstersofa', 'sitzer sofa', 'modulares sofa', 'sofa modular', 'sectional']),
     ('Cadeira', ['cadeira', 'silla', 'chaise', 'stuhl', 'sedia', 'chair']),
     ('Cama', ['cama', 'lit ', 'bett', 'bettgestell', 'polsterbett', 'bettrahmen', 'boxspringbett', 'letto', 'bed frame', 'cabeceira', 'headboard']),
     ('Cômoda', ['comoda', 'commode', 'kommode', 'cassettiera', 'chest of drawers', 'dresser']),
@@ -329,6 +332,35 @@ def nome_do_link(url):
     return slug.replace('-', ' ').replace('_', ' ').strip().capitalize()
 
 
+def variante_sklum(pagina, url, r):
+    """Sklum: cada cor (?id_c=...) é a mesma página, mas tem código, cor,
+    foto e preço próprios num bloco de dados. Sem id_c, vale a 1ª cor."""
+    if 'sklum.' not in urlparse(url).netloc:
+        return
+    combos = list(re.finditer(r'"(\d{4,})":\{"p":([\d.]+),"att"', pagina))
+    if not combos:
+        return
+    colecao = re.search(r'"collection":"((?:[^"\\]|\\.)+)"', pagina)
+    if colecao:
+        r['modelo'] = json.loads('"' + colecao.group(1) + '"').strip()
+    pedido = (parse_qs(urlparse(url).query).get('id_c') or [''])[0]
+    m = next((c for c in combos if c.group(1) == pedido), combos[0])
+    bloco = pagina[m.start():m.start() + 4000]
+    r['referencia'] = m.group(1)
+    r['preco'] = float(m.group(2))
+    r['moeda'] = r['moeda'] or 'EUR'
+    cor = re.search(r'"color":"((?:[^"\\]|\\.)*)"', bloco)
+    if cor:
+        cor = json.loads('"' + cor.group(1) + '"')
+        cor = re.sub(r'^\S*(farbe|color|colour|cor)\S*\s+', '', cor, flags=re.I).strip()
+        if cor and r['nome']:
+            r['nome'] = f"{r['nome']} - {cor}"
+    # iM = foto principal da cor (a que a loja mostra primeiro)
+    foto = re.search(r'"iM":(\d+)', bloco)
+    if foto and r['imagem']:
+        r['imagem'] = re.sub(r'/\d+/([^/]+)$', '/' + foto.group(1) + r'/\1', r['imagem'])
+
+
 # -------------------------------------------------------- captura
 def capturar(url, lojas):
     r = {'link': url, 'nome': '', 'imagem': '', 'preco': None, 'moeda': '',
@@ -374,6 +406,7 @@ def capturar(url, lojas):
     if not r['preco'] and numero(p.itemprop.get('price')):
         r['preco'] = numero(p.itemprop.get('price'))
         r['moeda'] = p.itemprop.get('priceCurrency', '')
+    variante_sklum(pagina, url, r)
     if r['imagem']:
         r['imagem'] = urljoin(final, r['imagem'].strip())
         if r['imagem'].startswith('//'):

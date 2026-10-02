@@ -29,6 +29,7 @@ import argparse
 import base64
 import datetime as dt
 import html
+import json
 import mimetypes
 import os
 import re
@@ -45,7 +46,7 @@ POR_PAGINA = 6
 ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
     'Cama', 'Cômoda', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
-    'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Poltrona', 'Puff', 'Sofá',
+    'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
     'Papel de parede', 'Quadros & Arte', 'Roupa de cama & Têxtil', 'Tapete',
@@ -123,6 +124,35 @@ def variacao(nome):
     return v[:24]
 
 
+def _carregar_traducoes():
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'traducoes.json'), encoding='utf-8') as f:
+            return {cap.sem_acento(k): v for k, v in json.load(f).items() if not k.startswith('_')}
+    except Exception:
+        return {}
+
+
+TRADUCOES = _carregar_traducoes()
+
+
+def traduzir(texto):
+    """'4 Schubladen dunkel graublau' -> '4 gavetas azul acinzentado escuro'."""
+    saida, adiar = [], ''
+    for w in texto.split():
+        t = TRADUCOES.get(cap.sem_acento(w).strip('-'), w)
+        if t in ('escuro', 'claro'):  # "dunkel graublau" -> "azul acinzentado escuro"
+            adiar = t
+            continue
+        if t:
+            saida.append(t)
+            if adiar:
+                saida.append(adiar)
+                adiar = ''
+    if adiar:
+        saida.append(adiar)
+    return ' '.join(saida)
+
+
 def diferencas(nomes):
     """Do grupo de nomes completos, devolve para cada um só as palavras que
     os outros não têm (sem medidas): o que distingue a variação."""
@@ -136,8 +166,6 @@ def diferencas(nomes):
         # número sozinho leva a palavra seguinte junto ("3" -> "3 Spots")
         v = ' '.join(w + (' ' + l[i + 1] if w.isdigit() and i + 1 < len(l) and cap.sem_acento(l[i + 1]) in comuns else '')
                      for i, w in enumerate(l) if cap.sem_acento(w) not in comuns)
-        if len(v) > 26:
-            v = v[:26].rsplit(' ', 1)[0]
         saida.append(v)
     return saida
 
@@ -147,9 +175,20 @@ def nome_curto(nome, secao=''):
     'STRANDMON Poltrona - Talliden bege' -> 'Strandmon'
     'Poltrona Beegees Suede Preta' (seção Poltronas) -> 'Beegees Suede Preta'"""
     n = re.split(r'\s+[-–—|]\s+|,\s', nome or '')[0].strip()
+    # padrão IKEA (MODELO em maiúsculas no começo) é tratado mais abaixo
+    ikea = bool(re.match(r'^[A-ZÀ-Þ]{2,}\b', n)) and not n.split()[0].isdigit()
     # padrão "Tipo aus/in/em Material Modelo" (Sklum e outras):
     # '3-Sitzer-Sofa aus Chenille Coco' -> 'Coco'
-    m = re.match(r'^(\S+(?:\s\S+){0,3}?)\s+(?:aus|in|mit|em|de|en|in|with|en)\s+.+\s([A-ZÀ-Þ][\w\'’-]+)$', n)
+    m = None if ikea else re.match(r'^(\S+(?:\s\S+){0,3}?)\s+(?:aus|in|mit|em|de|en|with)\s+.+\s([A-ZÀ-Þ][\w\'’-]+)$', n)
+    if m and cap.sugerir_categoria(m.group(1).replace('-', ' ')):
+        return m.group(2)
+    # padrão "Modelo Tipo ..." ('Olivia 3-Sitzer-Sofa aus Akazienholz' -> 'Olivia')
+    m = re.match(r'^([A-ZÀ-Þ][a-zà-ÿ]+)\s+(\S+)', n)
+    if m and not m.group(1).isupper() and cap.sugerir_categoria(m.group(2).replace('-', ' ')) \
+            and not cap.sugerir_categoria(m.group(1)):
+        return m.group(1)
+    # padrão "Tipo aus Modelo-Stoff" ('3-Sitzer-Schlafsofa aus Oleguer-Stoff' -> 'Oleguer')
+    m = re.match(r'^(\S+(?:\s\S+){0,3}?)\s+(?:aus|in|em|de)\s+([A-ZÀ-Þ][\w]+)-(?:Stoff|Leinen|Samt|Bouclé|Boucle)\b', n)
     if m and cap.sugerir_categoria(m.group(1).replace('-', ' ')):
         return m.group(2)
     palavras = n.split()
@@ -179,10 +218,14 @@ def cortar_sobra(im, folga=0.04):
     costumam ter muita sobra) e deixa uma folga pequena."""
     from PIL import ImageChops, Image
     cinza = im.convert('L')
+    w, h = im.size
+    cantos = [cinza.getpixel(p) for p in ((2, 2), (w - 3, 2), (2, h - 3), (w - 3, h - 3))]
     fundo = cinza.getpixel((0, 0))
-    if fundo < 225:  # foto de ambiente, não fundo claro: não mexe
+    # só mexe em fundo de estúdio: claro (branco ou cinza claro) e uniforme nos cantos
+    if min(cantos) < 165 or max(cantos) - min(cantos) > 30:
         return im
-    dif = ImageChops.difference(cinza, Image.new('L', im.size, fundo)).point(lambda v: 255 if v > 14 else 0)
+    limite = 14 if fundo >= 225 else 26  # cinza de estúdio tem sombra suave: tolera mais
+    dif = ImageChops.difference(cinza, Image.new('L', im.size, fundo)).point(lambda v: 255 if v > limite else 0)
     caixa = dif.getbbox()
     if not caixa:
         return im
@@ -192,6 +235,24 @@ def cortar_sobra(im, folga=0.04):
     novo = Image.new('RGB', (r - l, b - t), (fundo,) * 3)
     novo.paste(im.crop((l, t, r, b)))
     return novo
+
+
+def enquadrar(im, proporcao=1.7):
+    """Foto vertical (comum em fotos de estúdio/ambiente) num quadro
+    horizontal: corta na largura toda, centralizando na faixa onde está o
+    móvel (as linhas com mais detalhe)."""
+    w, h = im.size
+    if w / h >= 0.85:  # só fotos claramente verticais (quadradas ficam inteiras)
+        return im
+    from PIL import ImageFilter
+    from PIL import Image
+    bordas = im.convert('L').filter(ImageFilter.FIND_EDGES)
+    linhas = list(bordas.resize((1, h), Image.BOX).tobytes())  # média de detalhe por linha
+    total = sum(linhas) or 1
+    centro = sum(y * v for y, v in enumerate(linhas)) / total
+    alto = min(h, int(w / proporcao))
+    topo = int(min(max(0, centro - alto / 2), h - alto))
+    return im.crop((0, topo, w, topo + alto))
 
 
 def reduzir(dados, tipo, lado=900):
@@ -209,7 +270,11 @@ def reduzir(dados, tipo, lado=900):
             im = fundo
         else:
             im = im.convert('RGB')
-        im = cortar_sobra(im)
+        cortada = cortar_sobra(im)
+        # recorte de verdade (móvel em fundo branco) fica como está, mesmo
+        # vertical (luminárias); se o corte mal mudou a foto, enquadra
+        recortou = cortada.width * cortada.height < 0.7 * im.width * im.height
+        im = cortada if recortou else enquadrar(im)
         out = BytesIO()
         im.save(out, 'JPEG', quality=84, optimize=True)
         return out.getvalue(), 'image/jpeg'
@@ -283,7 +348,7 @@ def agrupar(todos, res):
         else:
             titulo = OUTROS
         paginas.setdefault(titulo, []).append(r)
-        r['nome_pdf'] = it['extra'].get('nome') or nome_curto(r['nome'], titulo)
+        r['nome_pdf'] = it['extra'].get('nome') or r.get('modelo') or nome_curto(r['nome'], titulo)
 
     # mesmo modelo em cores/tecidos/tamanhos diferentes: acrescenta o que
     # muda entre eles ("Nymane · 4 Spots", "Ramnefjäll · Idekulla beige")
@@ -292,6 +357,10 @@ def agrupar(todos, res):
             iguais = [r for r in prods if r['nome_pdf'] == nome]
             if len(iguais) > 1:
                 for r, v in zip(iguais, diferencas([r['nome'] for r in iguais])):
+                    # sem palavra própria (ex.: a versão "padrão"): usa a própria cor/acabamento
+                    v = traduzir(v or variacao(r['nome']))
+                    if len(v) > 30:
+                        v = v[:30].rsplit(' ', 1)[0]
                     if v:
                         r['nome_pdf'] = f'{nome} · {v}'
 
@@ -328,7 +397,7 @@ body { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; -webkit-print-c
   letter-spacing: .22em; text-transform: uppercase; color: var(--suave); }
 .topo { padding-bottom: 2.6mm; border-bottom: .25mm solid var(--linha); }
 .rodape { margin-top: auto; padding-top: 2.6mm; border-top: .25mm solid var(--linha); }
-h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 30pt;
+h1 { font-family: 'EB Garamond', Georgia, serif; font-weight: 400; font-size: 28pt;
   letter-spacing: .01em; text-align: center; margin: 8mm 0 7mm; }
 .grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 6mm 7mm; flex: 1; min-height: 0; margin-bottom: 5mm; }
@@ -340,14 +409,14 @@ h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-s
 .foto .vazio { font-size: 7pt; letter-spacing: .2em; color: var(--suave); text-transform: uppercase; }
 .legenda { padding: 3mm 4mm 3.4mm; text-align: center; }
 .nome { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500;
-  font-size: 15pt; line-height: 1.1; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  font-size: 15pt; line-height: 1.1; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .loja { font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; margin: 1.1mm 0 0; }
 .meta { font-size: 7.4pt; letter-spacing: .08em; color: var(--suave); margin: 1mm 0 0; }
 .meta b { color: var(--bronze); font-weight: 500; letter-spacing: .12em; }
 /* capa e sumário */
 .capa { justify-content: center; align-items: center; text-align: center; }
 .capa .sobre { font-size: 7.5pt; letter-spacing: .4em; text-transform: uppercase; color: var(--suave); }
-.capa h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: 44pt;
+.capa h2 { font-family: 'EB Garamond', Georgia, serif; font-weight: 400; font-size: 40pt;
   margin: 7mm 0 4mm; letter-spacing: .01em; }
 .capa .fio { width: 22mm; height: .3mm; background: var(--bronze); margin: 2mm auto 6mm; }
 .capa .sub { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 14pt; color: var(--suave); }
@@ -356,7 +425,7 @@ h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-s
 .sumario { width: 130mm; margin: 4mm auto 0; }
 .sumario a { display: flex; align-items: baseline; gap: 3mm; text-decoration: none; color: inherit;
   padding: 2.2mm 0; border-bottom: .25mm solid var(--linha); break-inside: avoid;
-  font-family: 'Cormorant Garamond', Georgia, serif; font-size: 13.5pt; }
+  font-family: 'EB Garamond', Georgia, serif; font-size: 13pt; }
 .sumario a span:last-child { margin-left: auto; font-family: 'Jost', sans-serif; font-size: 7pt;
   letter-spacing: .2em; color: var(--suave); }
 """
