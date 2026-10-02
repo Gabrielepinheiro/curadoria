@@ -45,7 +45,7 @@ POR_PAGINA = 6
 # Ordem das páginas — a mesma de CATEGORIES em assets/config.js.
 ORDEM = [
     'Aparador & Buffet', 'Banco & Banqueta', 'Cadeira', 'Cadeira de escritório',
-    'Cama', 'Cômoda', 'Cristaleira', 'Escrivaninha', 'Estante', 'Mesa de cabeceira',
+    'Cama', 'Cômoda', 'Cristaleira', 'Escrivaninha', 'Estante', 'Rack de TV', 'Mesa de cabeceira',
     'Mesa de centro', 'Mesa de jantar', 'Mesa lateral', 'Carrinho', 'Poltrona', 'Puff', 'Sofá', 'Sofá cama',
     'Área externa', 'Cortina', 'Decoração', 'Espelho',
     'Luminária de teto', 'Luminária de mesa', 'Luminária de piso', 'Luminária de parede', 'Iluminação',
@@ -159,7 +159,13 @@ def traduzir(texto):
                 adiar = ''
     if adiar:
         saida.append(adiar)
-    return ' '.join(saida)
+    # sem palavras repetidas ("branco Lappviken branco" -> "branco Lappviken")
+    vistas, unicas = set(), []
+    for w in ' '.join(saida).split():
+        if w.lower() not in vistas:
+            vistas.add(w.lower())
+            unicas.append(w)
+    return ' '.join(unicas)
 
 
 def diferencas(nomes):
